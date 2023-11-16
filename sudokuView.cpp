@@ -294,11 +294,12 @@ int CsudokuView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	Callback lambda_ = []() {};
 
 	// 메뉴 - INIT
-	CustomButton *button_init[3];
+	CustomButton *button_init[4];
 	button_init[0] = new AnimationMenuButton(menu_rect[0], [=]() { OnNewgameClicked(); }, CString("새 게임"), font_name, 0.5, dpi, menu_sp[0], 0.3);
 	button_init[1] = new AnimationMenuButton(menu_rect[1], [=]() { OnContinueClicked(); }, CString("이어하기"), font_name, 0.5, dpi, menu_sp[1], 0.35);
 	button_init[2] = new AnimationMenuButton(menu_rect[2], [=]() { OnSettingsClicked(); }, CString("설정"), font_name, 0.5, dpi, menu_sp[2], 0.4);
-	group_init = new ButtonGroup(3, button_init);
+	button_init[3] = new AnimationMenuButton(menu_rect[3], [=]() { OnExitClicked(); }, CString("종료"), font_name, 0.5, dpi, menu_sp[3], 0.45);
+	group_init = new ButtonGroup(4, button_init);
 
 	// 메뉴 - NEWGAME
 	CustomButton *button_newgame[5];
@@ -418,6 +419,10 @@ void CsudokuView::OnNumberKeyClicked(int num) {
 void CsudokuView::OnSudokuMapClicked(int i) {
 	m_nSelRow = i / 9;
 	m_nSelCol = i % 9;
+}
+
+void CsudokuView::OnExitClicked() {
+	AfxGetApp()->m_pMainWnd->PostMessage(WM_CLOSE);
 }
 
 void CsudokuView::OnDoneClicked() {

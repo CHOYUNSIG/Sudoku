@@ -72,10 +72,11 @@ public:
 	ButtonGroup *group_sudoku;
 	CustomButton *button_done;
 
-	void OnNewGameStart(DIFF diff);
 	void OnNewgameClicked();
 	void OnContinueClicked();
 	void OnSettingsClicked();
+	void OnExitClicked();
+	void OnNewGameStart(DIFF diff);
 	void OnUserClicked();
 	void OnBackNewGameClicked();
 	void OnBackSettingsClicked();
