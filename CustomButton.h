@@ -45,6 +45,7 @@ private:
 	virtual void OnKeyboard(UINT nChar, UINT nRepCnt, UINT nFlags) {};
 	virtual void OnClicked(UINT nFlags) { m_callback(); };
 	virtual void OnDraw(CDC *pDC) {};
+	virtual void OnTimer(UINT_PTR nIDEvent) {};
 	virtual void OnGroupEvent(int nIDEvent) {};
 
 	ButtonGroup *group = nullptr;
@@ -60,10 +61,30 @@ public:
 	static void Keyboard(UINT nChar, UINT nRepCnt, UINT nFlags);
 	static void Click(UINT nFlags, CPoint &point);
 	static void Draw(CDC *pDC);
+	static void Timer(UINT_PTR nIDEvent);
 
 	CustomButton(CRect &rect, Callback callback);
 	virtual void Enable() { m_bEnabled = true; };
 	virtual void Disable() { m_bEnabled = false; };
+};
+
+
+
+
+
+class Animation {
+private:
+	const CPoint m_ptAnimationStart;
+	const CPoint m_ptAnimationEnd;
+	const double m_dAnimationTime;
+
+protected:
+	clock_t m_clockAnimationInit = clock();
+	CPoint GetAnimatedPoint(bool forward);
+
+public:
+	Animation(CPoint &start, CPoint &end, double sec);
+	bool Animating();
 };
 
 
@@ -90,7 +111,7 @@ protected:
 	CString m_strFontName;
 	const int m_nFontPoint;
 	CString m_strText;
-	COLORREF m_colorText;
+	COLORREF m_colorText = RGB(0, 0, 0);
 
 	void OnDraw(CDC *pDC);
 
@@ -104,20 +125,17 @@ public:
 
 
 
-class AnimationMenuButton : public TextButton {
+class AnimationMenuButton : public TextButton, public Animation {
 private:
 	enum BUTTONMODE { READY, CREATE, REMAIN, DESTROY };
 	BUTTONMODE m_buttonmode = READY;
 	bool m_bClicked = false;
-	const CPoint m_ptAnimationStart;
-	const double m_dAnimationTime;
-	clock_t m_clockCreate = clock();
-	clock_t m_clockDestroy = clock();
 	CString m_strShownText;
 
 	void OnMouse(UINT nFlags, bool isOn);
 	void OnClicked(UINT nFlags);
 	void OnDraw(CDC *pDC);
+	void OnTimer(UINT_PTR nIDEvent);
 	void OnGroupEvent(int nIDEvent);
 
 public:

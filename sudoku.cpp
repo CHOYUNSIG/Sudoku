@@ -94,7 +94,7 @@ BOOL CsudokuApp::InitInstance()
 	// 해당 설정이 저장된 레지스트리 키를 변경하십시오.
 	// TODO: 이 문자열을 회사 또는 조직의 이름과 같은
 	// 적절한 내용으로 수정해야 합니다.
-	SetRegistryKey(_T("로컬 애플리케이션 마법사에서 생성된 애플리케이션"));
+	SetRegistryKey(_T("sudoku_by_choyunsig"));
 	LoadStdProfileSettings(4);  // MRU를 포함하여 표준 INI 파일 옵션을 로드합니다.
 
 
@@ -125,7 +125,7 @@ BOOL CsudokuApp::InitInstance()
 	// 창 하나만 초기화되었으므로 이를 표시하고 업데이트합니다.
 	m_pMainWnd->ShowWindow(SW_SHOW);
 	m_pMainWnd->UpdateWindow();
-	m_pMainWnd->SetWindowTextW(_T("Sudoku"));
+	m_pMainWnd->SetWindowTextW(_T("sudoku"));
 	srand(time(nullptr));
 
 	return TRUE;

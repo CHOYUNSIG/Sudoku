@@ -36,7 +36,6 @@ SudokuMap::SudokuMap(int del)
 	for (int i = 0; i < 9 * 9; i++)
 		map[i / 9][i % 9] += 10;
 
-	blank = 0;
 	while (blank < del) {
 		int r = rand() % 9;
 		int c = rand() % 9;
@@ -49,8 +48,11 @@ SudokuMap::SudokuMap(int del)
 
 SudokuMap::SudokuMap(int pre_map[9][9])
 {
-	for (int i = 0; i < 9 * 9; i++)
+	for (int i = 0; i < 9 * 9; i++) {
 		map[i / 9][i % 9] = pre_map[i / 9][i % 9];
+		if (map[i / 9][i % 9] == 0)
+			blank++;
+	}
 }
 
 int SudokuMap::GetValue(int row, int col)

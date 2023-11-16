@@ -312,9 +312,9 @@ int CsudokuView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	// 메뉴 - SETTINGS
 	CustomButton *button_settings[4];
-	button_settings[0] = new AnimationMenuButton(menu_rect[0], lambda_, CString("음악"), font_name, 0.5, dpi, menu_sp[0], 0.3);
-	button_settings[1] = new AnimationMenuButton(menu_rect[1], lambda_, CString("효과음"), font_name, 0.5, dpi, menu_sp[1], 0.35);
-	button_settings[2] = new AnimationMenuButton(menu_rect[2], lambda_, CString("화면 크기"), font_name, 0.5, dpi, menu_sp[2], 0.4);
+	button_settings[0] = new AnimationMenuButton(menu_rect[0], lambda_, CString("소리"), font_name, 0.5, dpi, menu_sp[0], 0.3);
+	button_settings[1] = new AnimationMenuButton(menu_rect[1], lambda_, CString("화면"), font_name, 0.5, dpi, menu_sp[1], 0.35);
+	button_settings[2] = new AnimationMenuButton(menu_rect[2], lambda_, CString("언어"), font_name, 0.5, dpi, menu_sp[2], 0.4);
 	button_settings[3] = new AnimationMenuButton(menu_rect[3], [=]() { OnBackSettingsClicked(); }, CString("뒤로"), font_name, 0.5, dpi, menu_sp[3], 0.45);
 	group_settings = new ButtonGroup(4, button_settings);
 
@@ -446,6 +446,8 @@ void CsudokuView::OnDestroy()
 void CsudokuView::OnTimer(UINT_PTR nIDEvent)
 {
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+	CustomButton::Timer(nIDEvent);
+
 	if (nIDEvent == 0) {
 		Invalidate(TRUE);
 

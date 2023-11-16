@@ -6,7 +6,7 @@
 class SudokuMap {
 private:
 	int map[9][9];
-	int blank;
+	int blank = 0;
 
 public:
 	SudokuMap(int del);
