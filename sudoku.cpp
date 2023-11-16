@@ -125,8 +125,8 @@ BOOL CsudokuApp::InitInstance()
 	// 창 하나만 초기화되었으므로 이를 표시하고 업데이트합니다.
 	m_pMainWnd->ShowWindow(SW_SHOW);
 	m_pMainWnd->UpdateWindow();
-	m_pMainWnd->SetWindowTextW(_T("sudoku"));
-	srand(time(nullptr));
+	m_pMainWnd->SetWindowText(_T("sudoku"));
+	srand((unsigned int)time(nullptr));
 
 	return TRUE;
 }

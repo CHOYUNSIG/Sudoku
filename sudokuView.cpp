@@ -17,7 +17,6 @@
 #include "CustomButton.h"
 #include <functional>
 #include <direct.h>
-#include <format>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -41,6 +40,7 @@ BEGIN_MESSAGE_MAP(CsudokuView, CView)
 	ON_WM_LBUTTONDOWN()
 	ON_WM_KEYDOWN()
 	ON_WM_ERASEBKGND()
+	ON_WM_SIZE()
 END_MESSAGE_MAP()
 
 
@@ -107,11 +107,11 @@ void CsudokuView::OnDraw(CDC *pDC)
 	}
 
 	// 버튼
-	CustomButton::Draw(&memdc); 
+	Button::Draw(&memdc); 
 
 	if (m_mode == INIT) {
 		// 제목
-		font.CreatePointFont(height * 1.5 * 72 / GetDpiForWindow(GetSafeHwnd()), font_name);
+		font.CreatePointFont((int)(height * 1.5 * 72 / GetDpiForWindow(GetSafeHwnd())), font_name);
 		oldfont = memdc.SelectObject(&font);
 		memdc.DrawText(_T(" Sudoku™"), CRect(0, height / 10, width, height * 3 / 10), DT_SINGLELINE | DT_CENTER | DT_VCENTER);
 		memdc.SelectObject(oldfont);
@@ -269,6 +269,7 @@ int CsudokuView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	// TODO:  여기에 특수화된 작성 코드를 추가합니다.
 	SetTimer(0, 500 / FPS, NULL);
+
 	if (_getcwd(font_path, sizeof(font_path)) != nullptr) {
 		strcat_s(font_path, "\\res\\MaruBuri-Regular.ttf");
 		AddFontResource(CString(font_path));
@@ -291,69 +292,65 @@ int CsudokuView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		menu_sp[i] = CPoint(-width / 2, height * 2 / 5 + height * i / 10);
 	}
 
-	Callback lambda_ = []() {};
-
 	// 메뉴 - INIT
-	CustomButton *button_init[4];
-	button_init[0] = new AnimationMenuButton(menu_rect[0], [=]() { OnNewgameClicked(); }, CString("새 게임"), font_name, 0.5, dpi, menu_sp[0], 0.3);
-	button_init[1] = new AnimationMenuButton(menu_rect[1], [=]() { OnContinueClicked(); }, CString("이어하기"), font_name, 0.5, dpi, menu_sp[1], 0.35);
-	button_init[2] = new AnimationMenuButton(menu_rect[2], [=]() { OnSettingsClicked(); }, CString("설정"), font_name, 0.5, dpi, menu_sp[2], 0.4);
-	button_init[3] = new AnimationMenuButton(menu_rect[3], [=]() { OnExitClicked(); }, CString("종료"), font_name, 0.5, dpi, menu_sp[3], 0.45);
+	Button *button_init[4];
+	button_init[0] = new AnimationButton(menu_rect[0], [=]() { OnNewgameClicked(); }, CString("새 게임"), font_name, 0.5, dpi, menu_sp[0], 0.3, 0b11);
+	button_init[1] = new AnimationButton(menu_rect[1], [=]() { OnContinueClicked(); }, CString("이어하기"), font_name, 0.5, dpi, menu_sp[1], 0.35, 0b11);
+	button_init[2] = new AnimationButton(menu_rect[2], [=]() { OnSettingsClicked(); }, CString("설정"), font_name, 0.5, dpi, menu_sp[2], 0.4, 0b11);
+	button_init[3] = new AnimationButton(menu_rect[3], [=]() { OnExitClicked(); }, CString("종료"), font_name, 0.5, dpi, menu_sp[3], 0.45, 0b11);
 	group_init = new ButtonGroup(4, button_init);
 
 	// 메뉴 - NEWGAME
-	CustomButton *button_newgame[5];
-	button_newgame[0] = new AnimationMenuButton(menu_rect[0], [=]() { OnNewGameStart(EASY); }, CString("쉬움"), font_name, 0.5, dpi, menu_sp[0], 0.3);
-	button_newgame[1] = new AnimationMenuButton(menu_rect[1], [=]() { OnNewGameStart(MEDIUM); }, CString("보통"), font_name, 0.5, dpi, menu_sp[1], 0.35);
-	button_newgame[2] = new AnimationMenuButton(menu_rect[2], [=]() { OnNewGameStart(HARD); }, CString("어려움"), font_name, 0.5, dpi, menu_sp[2], 0.4);
-	button_newgame[3] = new AnimationMenuButton(menu_rect[3], [=]() { OnUserClicked(); }, CString("사용자 정의"), font_name, 0.5, dpi, menu_sp[3], 0.45);
-	button_newgame[4] = new AnimationMenuButton(menu_rect[4], [=]() { OnBackNewGameClicked(); }, CString("뒤로"), font_name, 0.5, dpi, menu_sp[4], 0.5);
+	Button *button_newgame[5];
+	button_newgame[0] = new AnimationButton(menu_rect[0], [=]() { OnNewGameStart(EASY); }, CString("쉬움"), font_name, 0.5, dpi, menu_sp[0], 0.3, 0b11);
+	button_newgame[1] = new AnimationButton(menu_rect[1], [=]() { OnNewGameStart(MEDIUM); }, CString("보통"), font_name, 0.5, dpi, menu_sp[1], 0.35, 0b11);
+	button_newgame[2] = new AnimationButton(menu_rect[2], [=]() { OnNewGameStart(HARD); }, CString("어려움"), font_name, 0.5, dpi, menu_sp[2], 0.4, 0b11);
+	button_newgame[3] = new AnimationButton(menu_rect[3], [=]() { OnUserClicked(); }, CString("사용자 정의"), font_name, 0.5, dpi, menu_sp[3], 0.45, 0b11);
+	button_newgame[4] = new AnimationButton(menu_rect[4], [=]() { OnBackNewGameClicked(); }, CString("뒤로"), font_name, 0.5, dpi, menu_sp[4], 0.5, 0b11);
 	group_newgame = new ButtonGroup(5, button_newgame);
 
 	// 메뉴 - SETTINGS
-	CustomButton *button_settings[4];
-	button_settings[0] = new AnimationMenuButton(menu_rect[0], lambda_, CString("소리"), font_name, 0.5, dpi, menu_sp[0], 0.3);
-	button_settings[1] = new AnimationMenuButton(menu_rect[1], lambda_, CString("화면"), font_name, 0.5, dpi, menu_sp[1], 0.35);
-	button_settings[2] = new AnimationMenuButton(menu_rect[2], lambda_, CString("언어"), font_name, 0.5, dpi, menu_sp[2], 0.4);
-	button_settings[3] = new AnimationMenuButton(menu_rect[3], [=]() { OnBackSettingsClicked(); }, CString("뒤로"), font_name, 0.5, dpi, menu_sp[3], 0.45);
+	Button *button_settings[4];
+	button_settings[0] = new AnimationButton(menu_rect[0], [=]() {}, CString("소리 볼륨"), font_name, 0.5, dpi, menu_sp[0], 0.3, 0b00);
+	button_settings[1] = new AnimationButton(menu_rect[1], [=]() {}, CString("화면 크기"), font_name, 0.5, dpi, menu_sp[1], 0.35, 0b00);
+	button_settings[2] = new AnimationButton(menu_rect[2], [=]() {}, CString("언어"), font_name, 0.5, dpi, menu_sp[2], 0.4, 0b00);
+	button_settings[3] = new AnimationButton(menu_rect[3], [=]() { OnBackSettingsClicked(); }, CString("뒤로"), font_name, 0.5, dpi, menu_sp[3], 0.45, 0b11);
 	group_settings = new ButtonGroup(4, button_settings);
 
 	// 게임 - Number Key
-	CustomButton *button_number[9];
+	Button *button_number[9];
 	for (int i = 0; i < 9; i++) {
 		CString a;
 		a.Format(_T("%d"), i + 1);
-		CRect rect(
+		button_number[i] = new EdgeButton(CRect(
 			width * 21 / 40 + height * 9 / 20 + height * (2 * (i % 3) - 3) / 18 + 3,
 			height * (3 + i / 3) / 9 + 3,
 			width * 21 / 40 + height * 9 / 20 + height * (2 * (i % 3) - 1) / 18 - 3,
 			height * (4 + i / 3) / 9 - 3
-		);
-		Callback callback = [=]() { OnNumberKeyClicked(i + 1); };
-		button_number[i] = new EdgeButton(rect, callback, a, font_name, 0.5, dpi, 3, 0.1);
+		), [=]() { OnNumberKeyClicked(i + 1); }, a, font_name, 0.5, dpi, 3, 0.1);
 	}
 	group_numberkey = new ButtonGroup(9, button_number);
 
 	// 게임 - 격자판
+	Button *button_sudoku[81];
 	for (int i = 0; i < 9 * 9; i++) {
-		CRect rect(
+		button_sudoku[i] = new TextButton(CRect(
 			width / 20 + height * (i % 9) / 10,
 			height * (2 * (i / 9) + 1) / 20,
 			width / 20 + height * (i % 9 + 1) / 10,
 			height * (2 * (i / 9) + 3) / 20
-		);
-		Callback callback = [=]() { OnSudokuMapClicked(i); };
-		button_sudoku[i] = new TextButton(rect, callback, CString(""), CString("굴림"), 0.7, dpi);
+		), [=]() { OnSudokuMapClicked(i); }, CString(""), CString("굴림"), 0.7, dpi);
 	}
 	group_sudoku = new ButtonGroup(81, button_sudoku);
 
 	// 게임 - 완료
-	button_done = new AnimationMenuButton(CRect(
+	Button *button_done = new AnimationButton(CRect(
 		width * 21 / 40 + height * 9 / 20 - height / 6,
 		height * 7 / 9,
 		width * 21 / 40 + height * 9 / 20 + height / 6,
 		height * 7 / 9 + height / 10
-	), [=]() { OnDoneClicked(); }, CString("완료"), font_name, 0.5, dpi, CPoint(width * 3 / 2, height * 7 / 9), 0.4);
+	), [=]() { OnDoneClicked(); }, CString("완료"), font_name, 0.5, dpi, CPoint(width * 3 / 2, height * 7 / 9), 0.4, 0b11);
+	group_done = new ButtonGroup(1, &button_done);
 
 	group_init->Enable();
 
@@ -446,7 +443,7 @@ void CsudokuView::OnDestroy()
 void CsudokuView::OnTimer(UINT_PTR nIDEvent)
 {
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
-	CustomButton::Timer(nIDEvent);
+	Button::Timer(nIDEvent);
 
 	if (nIDEvent == 0) {
 		Invalidate(TRUE);
@@ -467,7 +464,7 @@ void CsudokuView::OnTimer(UINT_PTR nIDEvent)
 						if (map->GetValue(i, j) > 0) {
 							CString a;
 							a.Format(_T("%d"), map->GetValue(i, j));
-							((TextButton *)button_sudoku[i * 9 + j])->ChangeText(a);
+							((TextButton *)group_sudoku->group[i * 9 + j])->ChangeText(a);
 							COLORREF color;
 							if (map->Contradict(i, j))
 								color = RGB(255, 0, 0);
@@ -475,16 +472,16 @@ void CsudokuView::OnTimer(UINT_PTR nIDEvent)
 								color = RGB(100, 100, 255);
 							else
 								color = RGB(50, 50, 50);
-							((TextButton *)button_sudoku[i * 9 + j])->ChangeTextColor(color);
+							((TextButton *)group_sudoku->group[i * 9 + j])->ChangeTextColor(color);
 						}
 						else
-							((TextButton *)button_sudoku[i * 9 + j])->ChangeText(CString(""));
+							((TextButton *)group_sudoku->group[i * 9 + j])->ChangeText(CString(""));
 				// 완료 여부
 				if (map->Done()) {
 					group_numberkey->Disable();
 					m_clockEnded = clock();
 					m_ingame = DONE;
-					button_done->Enable();
+					group_done->Enable();
 				}
 			}
 		}
@@ -496,7 +493,7 @@ void CsudokuView::OnTimer(UINT_PTR nIDEvent)
 void CsudokuView::OnMouseMove(UINT nFlags, CPoint point)
 {
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
-	CustomButton::Mouse(nFlags, point);
+	Button::Mouse(nFlags, point);
 
 	CView::OnMouseMove(nFlags, point);
 }
@@ -505,7 +502,7 @@ void CsudokuView::OnMouseMove(UINT nFlags, CPoint point)
 void CsudokuView::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
-	CustomButton::Click(nFlags, point);
+	Button::Click(nFlags, point);
 
 	CView::OnLButtonDown(nFlags, point);
 }
@@ -514,7 +511,7 @@ void CsudokuView::OnLButtonDown(UINT nFlags, CPoint point)
 void CsudokuView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
-	CustomButton::Keyboard(nChar, nRepCnt, nFlags);
+	Button::Keyboard(nChar, nRepCnt, nFlags);
 
 	if (m_mode == GAME) {
 		if (m_ingame == ON) {
@@ -543,4 +540,13 @@ BOOL CsudokuView::OnEraseBkgnd(CDC *pDC)
 {
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
 	return FALSE;
+}
+
+
+void CsudokuView::OnSize(UINT nType, int cx, int cy)
+{
+	CView::OnSize(nType, cx, cy);
+
+	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
+
 }

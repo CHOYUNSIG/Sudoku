@@ -49,7 +49,7 @@ protected:
 protected:
 	DECLARE_MESSAGE_MAP()
 public:
-	int width = 1280, height = 720;
+	int width = 852, height = 480;
 	char font_path[256] = { 0, };
 	CString font_name;
 
@@ -68,9 +68,8 @@ public:
 	ButtonGroup *group_newgame;
 	ButtonGroup *group_settings;
 	ButtonGroup *group_numberkey;
-	CustomButton *button_sudoku[81];
 	ButtonGroup *group_sudoku;
-	CustomButton *button_done;
+	ButtonGroup *group_done;
 
 	void OnNewgameClicked();
 	void OnContinueClicked();
@@ -91,6 +90,7 @@ public:
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg BOOL OnEraseBkgnd(CDC *pDC);
+	afx_msg void OnSize(UINT nType, int cx, int cy);
 };
 
 #ifndef _DEBUG  // sudokuView.cpp의 디버그 버전
