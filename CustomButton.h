@@ -73,6 +73,7 @@ public:
 	static void Click(UINT nFlags, CPoint &point);
 	static void Draw(CDC *pDC);
 	static void Timer(UINT_PTR nIDEvent);
+	static void Size(UINT nType, int cx, int cy);
 
 	Button(CRect &rect, Callback callback);
 	virtual void Enable() { m_bEnabled = true; };

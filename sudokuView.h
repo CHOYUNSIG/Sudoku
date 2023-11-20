@@ -57,7 +57,7 @@ public:
 	MENU m_menu = START;
 	INGAME m_ingame = READY;
 
-	SudokuMap *map = nullptr;
+	SudokuMap *m_map = nullptr;
 	int m_nSelRow;
 	int m_nSelCol;
 	clock_t m_clockGenerated;

@@ -5,8 +5,8 @@
 
 class SudokuMap {
 private:
-	int map[9][9];
-	int blank = 0;
+	int m_lpMap[9][9];
+	int m_nBlank = 81;
 
 public:
 	SudokuMap(int del);

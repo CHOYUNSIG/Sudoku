@@ -52,6 +52,12 @@ void Button::Timer(UINT_PTR nIDEvent)
 			b->OnTimer(nIDEvent);
 }
 
+void Button::Size(UINT nType, int cx, int cy)
+{
+	for (auto &b : buttons)
+		b->Size(nType, cx, cy);
+}
+
 Button::Button(CRect &rect, Callback callback)
 : m_rectClick(rect), m_callback(callback)
 {
