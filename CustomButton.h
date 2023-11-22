@@ -8,6 +8,7 @@
 #include <functional>
 
 typedef std::function<void()> Callback; // 버튼의 콜백
+typedef std::function<CPoint(int, int)> Corner; // 버튼 범위의 끝지점 계산 함수
 
 class Button; // 버튼 가상클래스
 struct ButtonGroup; // 버튼 그룹
@@ -42,8 +43,9 @@ class EdgeButton; // 가장자리가 있는 버튼
 *	Disable : 버튼을 비활성화 할 때
 *
 * 주의사항:
-*	절대 생성한 버튼의 소멸자를 호출해서는 안 됨
+*	1. 절대 생성한 버튼의 소멸자를 호출해서는 안 됨
 *	생성한 버튼을 활성 상태를 조절해서 재사용하는 방식을 채택해야 함
+*	2. 반드시 버튼을 생성하면 WM_SIZE 메시지를 발생시켜햐 함
 *
 */
 
@@ -53,18 +55,21 @@ class Button {
 private:
 	static std::vector<Button *> buttons;
 
+protected:
+	const Corner m_topleft;
+	const Corner m_bottomright;
+	const Callback m_callback;
+
 	virtual void OnMouse(UINT nFlags, bool isOn) {};
 	virtual void OnKeyboard(UINT nChar, UINT nRepCnt, UINT nFlags) {};
 	virtual void OnClicked(UINT nFlags) { m_callback(); };
 	virtual void OnDraw(CDC *pDC) {};
 	virtual void OnTimer(UINT_PTR nIDEvent) {};
-	virtual void OnSize(UINT nType, int cx, int cy) {};
+	virtual void OnSize(UINT nType, int cx, int cy) { m_rectClick = CRect(m_topleft(cx, cy), m_bottomright(cx, cy)); };
 	virtual void OnGroupEvent(int nIDEvent) {};
 
-protected:
 	bool m_bEnabled = false;
 	CRect m_rectClick;
-	Callback m_callback;
 	ButtonGroup *group = nullptr;
 
 public:
@@ -75,7 +80,7 @@ public:
 	static void Timer(UINT_PTR nIDEvent);
 	static void Size(UINT nType, int cx, int cy);
 
-	Button(CRect &rect, Callback callback);
+	Button(Corner tl, Corner br, Callback callback);
 	virtual void Enable() { m_bEnabled = true; };
 	virtual void Disable() { m_bEnabled = false; };
 };
@@ -104,24 +109,41 @@ struct ButtonGroup {
 	void Disable();
 	void ThrowEvent(int nIDEvent);
 	bool IsDisabled();
-	size_t Size();
+	size_t Count();
 };
 
 
 
 
 
+/*
+* 
+* 텍스트 버튼
+* 
+* 설명:
+*	가운데에 텍스트가 있는 버튼
+* 
+* 주의사항:
+*	반드시 사용 전에 DPI 값을 지정해주어야 함
+*	static int m_nDPI
+* 
+*/
 class TextButton : public Button {
 protected:
-	CString m_strFontName;
-	const int m_nFontPoint;
+	const double m_dFontRate;
+	const CString m_strFontName;
+	
+	int m_nFontPoint;
 	CString m_strText;
 	COLORREF m_colorText = RGB(0, 0, 0);
 
 	void OnDraw(CDC *pDC);
+	virtual void OnSize(UINT nType, int cx, int cy);
 
 public:
-	TextButton(CRect &rect, Callback callback, CString &text, CString &font, double font_rate, int dpi);
+	static int m_nDPI;
+
+	TextButton(Corner tl, Corner br, Callback callback, CString &text, CString &font, double font_rate);
 	void ChangeText(CString &text);
 	void ChangeTextColor(COLORREF color);
 };
@@ -146,26 +168,29 @@ public:
 class AnimationButton : public TextButton {
 private:
 	enum BUTTONMODE { READY, CREATE, REMAIN, DESTROY };
-	BUTTONMODE m_buttonmode = READY;
-	const CPoint m_ptAnimationStart;
-	const CPoint m_ptAnimationEnd;
+
+	const Corner m_start;
 	const double m_dAnimationTime;
+	const int m_nOption;
+	
+	BUTTONMODE m_buttonmode = READY;
+	CPoint m_ptAnimationStart;
 	clock_t m_clockAnimationInit = clock();
 	bool m_bClicked = false;
 	CString m_strShownText;
-	const int m_nOption;
 
 	void OnMouse(UINT nFlags, bool isOn);
 	void OnClicked(UINT nFlags);
 	void OnDraw(CDC *pDC);
 	void OnTimer(UINT_PTR nIDEvent);
+	void OnSize(UINT nType, int cx, int cy);
 	void OnGroupEvent(int nIDEvent);
 
 	CPoint GetAnimatedPoint(bool forward);
 	bool Animating();
 
 public:
-	AnimationButton(CRect &rect, Callback callback, CString &text, CString &font, double font_rate, int dpi, CPoint &pt, double sec, int option);
+	AnimationButton(Corner tl, Corner br, Callback callback, CString &text, CString &font, double font_rate, Corner &start, double sec, int option);
 	void Enable();
 	void Disable();
 };
@@ -177,16 +202,15 @@ public:
 class EdgeButton : public TextButton {
 private:
 	static const double m_dPopTime;
+	const int m_nThickness;
+	const double m_dPopIntensity;
+
 	clock_t m_clockClick = clock();
-	CPen pen;
+	CPen m_penEdge;
 
 	void OnClicked(UINT nFlags);
 	void OnDraw(CDC *pDC);
 
-protected:
-	const int m_nThickness;
-	const double m_dPopIntensity;
-
 public:
-	EdgeButton(CRect &rect, Callback callback, CString &text, CString &font, double font_rate, int dpi, int Thickness, double pop);
+	EdgeButton(Corner tl, Corner br, Callback callback, CString &text, CString &font, double font_rate, int Thickness, double pop);
 };

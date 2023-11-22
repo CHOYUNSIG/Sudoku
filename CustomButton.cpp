@@ -55,11 +55,11 @@ void Button::Timer(UINT_PTR nIDEvent)
 void Button::Size(UINT nType, int cx, int cy)
 {
 	for (auto &b : buttons)
-		b->Size(nType, cx, cy);
+		b->OnSize(nType, cx, cy);
 }
 
-Button::Button(CRect &rect, Callback callback)
-: m_rectClick(rect), m_callback(callback)
+Button::Button(Corner tl, Corner br, Callback callback)
+: m_topleft(tl), m_bottomright(br), m_callback(callback)
 {
 	Button *self[1] = { this };
 	group = new ButtonGroup(1, self);
@@ -105,7 +105,7 @@ bool ButtonGroup::IsDisabled()
 	return true;
 }
 
-size_t ButtonGroup::Size()
+size_t ButtonGroup::Count()
 {
 	return group.size();
 }
@@ -113,6 +113,8 @@ size_t ButtonGroup::Size()
 
 
 
+
+int TextButton::m_nDPI = 96;
 
 void TextButton::OnDraw(CDC *pDC)
 {
@@ -126,8 +128,14 @@ void TextButton::OnDraw(CDC *pDC)
 	font.DeleteObject();
 }
 
-TextButton::TextButton(CRect &rect, Callback callback, CString &text, CString &font, double font_rate, int dpi)
-: Button(rect, callback), m_strText(text), m_strFontName(font), m_nFontPoint((int)(rect.Height() * font_rate * 720 / dpi)) {}
+void TextButton::OnSize(UINT nType, int cx, int cy)
+{
+	Button::OnSize(nType, cx, cy);
+	m_nFontPoint = (int)(m_rectClick.Height() * m_dFontRate * 720 / m_nDPI);
+}
+
+TextButton::TextButton(Corner tl, Corner br, Callback callback, CString &text, CString &font, double font_rate)
+: Button(tl, br, callback), m_strText(text), m_strFontName(font), m_dFontRate(font_rate) {}
 
 void TextButton::ChangeText(CString &text)
 {
@@ -145,12 +153,10 @@ void TextButton::ChangeTextColor(COLORREF color)
 
 void AnimationButton::OnMouse(UINT nFlags, bool isOn)
 {
-	if (m_nOption & (1 << 0)) {
-		if (isOn)
-			m_strShownText = _T("¢º ") + m_strText;
-		else
-			m_strShownText = m_strText;
-	}
+	if (m_nOption & (1 << 0) && isOn)
+		m_strShownText = _T("¢º ") + m_strText;
+	else
+		m_strShownText = m_strText;
 }
 
 void AnimationButton::OnClicked(UINT nFlags)
@@ -169,9 +175,6 @@ void AnimationButton::OnDraw(CDC *pDC)
 	CFont font, *oldfont;
 	font.CreatePointFont(m_nFontPoint, m_strFontName);
 	oldfont = pDC->SelectObject(&font);
-	int dx = m_ptAnimationEnd.x - m_ptAnimationStart.x;
-	int dy = m_ptAnimationEnd.y - m_ptAnimationStart.y;
-	double time = (double)(clock() - m_clockAnimationInit) / CLOCKS_PER_SEC;
 	if (m_buttonmode == CREATE) {
 		CPoint pt = GetAnimatedPoint(true);
 		pDC->DrawText(m_strText, CRect(pt.x, pt.y, pt.x + m_rectClick.Width(), pt.y + m_rectClick.Height()), DT_SINGLELINE | DT_CENTER | DT_VCENTER);
@@ -198,6 +201,12 @@ void AnimationButton::OnTimer(UINT_PTR nIDEvent)
 	}
 }
 
+void AnimationButton::OnSize(UINT nType, int cx, int cy)
+{
+	TextButton::OnSize(nType, cx, cy);
+	m_ptAnimationStart = m_start(cx, cy);
+}
+
 void AnimationButton::OnGroupEvent(int nIDEvent)
 {
 	if (nIDEvent == 0) {
@@ -212,12 +221,12 @@ void AnimationButton::OnGroupEvent(int nIDEvent)
 
 CPoint AnimationButton::GetAnimatedPoint(bool forward)
 {
-	int dx = m_ptAnimationEnd.x - m_ptAnimationStart.x;
-	int dy = m_ptAnimationEnd.y - m_ptAnimationStart.y;
+	int dx = m_rectClick.TopLeft().x - m_ptAnimationStart.x;
+	int dy = m_rectClick.TopLeft().y - m_ptAnimationStart.y;
 	double time = (double)(clock() - m_clockAnimationInit) / CLOCKS_PER_SEC;
 	if (!Animating()) {
 		if (forward)
-			return m_ptAnimationEnd;
+			return m_rectClick.TopLeft();
 		else
 			return m_ptAnimationStart;
 	}
@@ -233,8 +242,8 @@ CPoint AnimationButton::GetAnimatedPoint(bool forward)
 		double rate = time / m_dAnimationTime;
 		rate = rate * rate;
 		return CPoint(
-			(int)(m_ptAnimationEnd.x - dx * rate),
-			(int)(m_ptAnimationEnd.y - dy * rate)
+			(int)(m_rectClick.TopLeft().x - dx * rate),
+			(int)(m_rectClick.TopLeft().y - dy * rate)
 		);
 	}
 }
@@ -244,8 +253,8 @@ bool AnimationButton::Animating()
 	return (clock() - m_clockAnimationInit) < m_dAnimationTime * CLOCKS_PER_SEC;
 }
 
-AnimationButton::AnimationButton(CRect &rect, Callback callback, CString &text, CString &font, double font_rate, int dpi, CPoint &pt, double sec, int option)
-: TextButton(rect, callback, text, font, font_rate, dpi), m_ptAnimationStart(pt), m_ptAnimationEnd(rect.TopLeft()), m_dAnimationTime(sec), m_nOption(option) {
+AnimationButton::AnimationButton(Corner tl, Corner br, Callback callback, CString &text, CString &font, double font_rate, Corner &start, double sec, int option)
+: TextButton(tl, br, callback, text, font, font_rate), m_start(start), m_dAnimationTime(sec), m_nOption(option) {
 	m_strShownText = m_strText;
 }
 
@@ -278,7 +287,7 @@ void EdgeButton::OnClicked(UINT nFlags)
 
 void EdgeButton::OnDraw(CDC *pDC)
 {
-	CPen *oldpen = pDC->SelectObject(&pen);
+	CPen *oldpen = pDC->SelectObject(&m_penEdge);
 	CFont font, *oldfont;
 	CPoint points[5];
 	double time = (double)(clock() - m_clockClick) / CLOCKS_PER_SEC;
@@ -306,9 +315,9 @@ void EdgeButton::OnDraw(CDC *pDC)
 	font.DeleteObject();
 }
 
-EdgeButton::EdgeButton(CRect &rect, Callback callback, CString &text, CString &font, double font_rate, int dpi, int thickness, double pop)
-: TextButton(rect, callback, text, font, font_rate, dpi), m_nThickness(thickness), m_dPopIntensity(pop)
+EdgeButton::EdgeButton(Corner tl, Corner br, Callback callback, CString &text, CString &font, double font_rate, int thickness, double pop)
+: TextButton(tl, br, callback, text, font, font_rate), m_nThickness(thickness), m_dPopIntensity(pop)
 {
-	pen.CreatePen(PS_SOLID, m_nThickness, RGB(0, 0, 0));
+	m_penEdge.CreatePen(PS_SOLID, m_nThickness, RGB(0, 0, 0));
 }
 
