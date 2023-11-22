@@ -121,6 +121,14 @@ void CsudokuView::OnDraw(CDC *pDC)
 			
 		}
 	}
+	else if (m_mode == LOADING) {
+		// 로딩
+		font.CreatePointFont((int)(height * 72 / GetDpiForWindow(GetSafeHwnd())), font_name);
+		oldfont = memdc.SelectObject(&font);
+		memdc.DrawText(_T("Loading..."), CRect(0, 0, width, height), DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+		memdc.SelectObject(oldfont);
+		font.DeleteObject();
+	}
 	else if (m_mode == GAME) {
 		if (m_ingame == READY) {
 			// 카운트다운 글자
@@ -369,12 +377,17 @@ void CsudokuView::OnNewgameClicked() {
 }
 
 void CsudokuView::OnNewGameStart(DIFF diff) {
-	int m_nBlank{};
-	if (diff == EASY) m_nBlank = 30;
-	else if (diff == MEDIUM) m_nBlank = 45;
-	else if (diff == HARD) m_nBlank = 60;
-	
-	m_map = new SudokuMap(m_nBlank);
+	m_mode = LOADING;
+	CDC* pDC = GetDC();
+	OnDraw(pDC);
+	pDC->DeleteDC();
+
+	int blank{};
+	if (diff == EASY) blank = 30;
+	else if (diff == MEDIUM) blank = 45;
+	else if (diff == HARD) blank = 60;
+
+	m_map = new SudokuMap(blank);
 	m_ingame = READY;
 	m_nSelRow = 4;
 	m_nSelCol = 4;

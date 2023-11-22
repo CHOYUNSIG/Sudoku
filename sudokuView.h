@@ -8,7 +8,7 @@
 #include "SudokuMap.h"
 
 const int FPS = 60;
-enum MODE {INIT, GAME};
+enum MODE {INIT, LOADING, GAME};
 enum MENU {START, NEW_GAME, CONTINUE, SETTINGS};
 enum INGAME {READY, ON, PAUSE, SAVE, DONE};
 enum DIFF {EASY, MEDIUM, HARD, USER};
