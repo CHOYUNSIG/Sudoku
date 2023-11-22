@@ -355,7 +355,7 @@ int CsudokuView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 					CPoint rect = menu_rect[i][1][0](width, height);
 					return CPoint(rect.x, rect.y + height / 10);
 				},
-				[=]() { cb[i](false); }, CString("◀"), font_name, 0.5, menu_sp[i][1], 0.3, 0b00);
+				[=]() { cb[i](false); }, CString("◀"), font_name, 0.5, menu_sp[i][1], 0.3 + 0.05 * i, 0b00);
 			button_settings[8 + i * 2] = new AnimationButton(
 				[=](int width, int height) {
 					CPoint rect = menu_rect[i][1][1](width, height);
@@ -365,7 +365,7 @@ int CsudokuView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 					CPoint rect = menu_rect[i][1][1](width, height);
 					return CPoint(rect.x + height / 10, rect.y);
 				},
-				[=]() { cb[i](true); }, CString("▶"), font_name, 0.5, menu_sp[i][1], 0.3, 0b00);
+				[=]() { cb[i](true); }, CString("▶"), font_name, 0.5, menu_sp[i][1], 0.3 + 0.05 * i, 0b00);
 		}
 
 		group_settings = new ButtonGroup(13, button_settings);
@@ -377,13 +377,13 @@ int CsudokuView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		for (int i = 0; i < 9; i++) {
 			CString a;
 			a.Format(_T("%d"), i + 1);
-			Corner tl = [=](int weight, int height) {
+			Corner tl = [=](int width, int height) {
 				return CPoint(
 					width * 21 / 40 + height * 9 / 20 + height * (2 * (i % 3) - 3) / 18 + 3,
 					height * (3 + i / 3) / 9 + 3
 				);
 				};
-			Corner br = [=](int weight, int height) {
+			Corner br = [=](int width, int height) {
 				return CPoint(
 					width * 21 / 40 + height * 9 / 20 + height * (2 * (i % 3) - 1) / 18 - 3,
 					height * (4 + i / 3) / 9 - 3
@@ -398,13 +398,13 @@ int CsudokuView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	{
 		Button *button_sudoku[81];
 		for (int i = 0; i < 9 * 9; i++) {
-			Corner tl = [=](int weight, int height) {
+			Corner tl = [=](int width, int height) {
 				return CPoint(
 					width / 20 + height * (i % 9) / 10,
 					height * (2 * (i / 9) + 1) / 20
 				);
 				};
-			Corner br = [=](int weight, int height) {
+			Corner br = [=](int width, int height) {
 				return CPoint(
 					width / 20 + height * (i % 9 + 1) / 10,
 					height * (2 * (i / 9) + 3) / 20
