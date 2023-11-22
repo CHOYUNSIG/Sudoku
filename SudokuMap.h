@@ -6,7 +6,7 @@
 class SudokuMap {
 private:
 	int m_lpMap[9][9];
-	int m_nBlank = 81;
+	int m_nBlank = 0;
 
 public:
 	SudokuMap(int del);

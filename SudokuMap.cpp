@@ -10,6 +10,18 @@
 
 
 
+inline bool contradict(int map[9][9], int row, int col)
+{
+	if (map[row][col] == 0)
+		return false;
+	for (int i = 0; i < 9; i++)
+		if ((i != row && map[i][col] % 10 == map[row][col] % 10) ||
+			(i != col && map[row][i] % 10 == map[row][col] % 10) ||
+			(row / 3 * 3 + i / 3 != row && col != col / 3 * 3 + i % 3 && map[row / 3 * 3 + i / 3][col / 3 * 3 + i % 3] % 10 == map[row][col] % 10))
+			return true;
+	return false;
+}
+
 inline bool generate_all(int map[9][9], int pos)
 {
 	if (pos == 81) return true;
@@ -29,18 +41,6 @@ inline bool generate_all(int map[9][9], int pos)
 	return false;
 }
 
-inline bool contradict(int map[9][9], int row, int col)
-{
-	if (map[row][col] == 0)
-		return false;
-	for (int i = 0; i < 9; i++)
-		if ((i != row && map[i][col] % 10 == map[row][col] % 10) ||
-			(i != col && map[row][i] % 10 == map[row][col] % 10) ||
-			(row / 3 * 3 + i / 3 != row && col != col / 3 * 3 + i % 3 && map[row / 3 * 3 + i / 3][col / 3 * 3 + i % 3] % 10 == map[row][col] % 10))
-			return true;
-	return false;
-}
-
 inline int bitsum(int n)
 {
 	int result = 0;
@@ -48,6 +48,13 @@ inline int bitsum(int n)
 		if (n & (1 << i))
 			result++;
 	return result;
+}
+
+inline int bit2num(int bit)
+{
+	for (int start = rand() % 9, i = start, now = start; now < start + 9; now++, i = now % 9)
+		if (bit & (1 << i))
+			return i + 1;
 }
 
 inline bool subset(int bit[9][9])
@@ -63,7 +70,7 @@ inline bool subset(int bit[9][9])
 			cord[2][i][0] = pos / 3 * 3 + i / 3;
 			cord[2][i][1] = pos % 3 * 3 + i % 3;
 		}
-		for (int set = 1; set <= 4; set++) {
+		for (int set = 1; set <= 8; set++) {
 			std::vector<bool> com;
 			for (int i = 0; i < 9 - set; i++)
 				com.push_back(false);
@@ -91,7 +98,8 @@ inline bool subset(int bit[9][9])
 	return changed;
 }
 
-inline bool intersection(int bit[9][9]) {
+inline bool intersection(int bit[9][9])
+{
 	bool changed = false;
 	for (int pos = 0; pos < 9; pos++) {
 		int core[6][3][2];
@@ -142,6 +150,43 @@ inline bool intersection(int bit[9][9]) {
 	return changed;
 }
 
+inline bool generate(int map[9][9], int bit[9][9])
+{
+	int row = -1, col = -1;
+	for (int start = rand() % 81, pos = start, now = start; now < start + 81; now++, pos = now % 81) {
+		int a = bitsum(bit[pos / 9][pos % 9]);
+		if (a == 0)
+			return false;
+		else if (a > 1) {
+			row = pos / 9;
+			col = pos % 9;
+		}
+	}
+
+	if (row == -1 && col == -1)
+		return true;
+
+	int pre_bit[9][9];
+	for (int i = 0; i < 81; i++)
+		pre_bit[i / 9][i % 9] = bit[i / 9][i % 9];
+
+	for (int start = rand() % 9, i = start, now = start; now < start + 9; now++, i = now % 9) {
+		if (bit[row][col] & (1 << i)) {
+			map[row][col] = i + 1;
+			bit[row][col] = (1 << i);
+			while (subset(bit) || intersection(bit))
+				continue;
+			if (generate(map, bit))
+				return true;
+			map[row][col] = 0;
+			for (int i = 0; i < 81; i++)
+				bit[i / 9][i % 9] = pre_bit[i / 9][i % 9];
+		}
+	}
+
+	return false;
+}
+
 SudokuMap::SudokuMap(int del)
 {
 	int bit[9][9];
@@ -150,35 +195,18 @@ SudokuMap::SudokuMap(int del)
 		bit[i / 9][i % 9] = 0b111111111;
 	}
 
-	for (int d = 0; d < 81 - del; d++) {
-		int start = rand() % 81;
-		for (int now = start, pos = now; now < start + 81; now++, pos = now % 81) {
-			if (bitsum(bit[pos / 9][pos % 9]) > 1) {
-				m_nBlank -= 1;
-				for (int i = 0; i < 9; i++)
-					if (bit[pos / 9][pos % 9] & (1 << i)) {
-						m_lpMap[pos / 9][pos % 9] = i + 1;
-						bit[pos / 9][pos % 9] = (1 << i);
-						while (subset(bit) || intersection(bit));
-						break;
-					}
-				break;
-			}
-		}
-	}
+	generate(m_lpMap, bit);
 
-	for (; m_nBlank > del; m_nBlank--) {
-		int start = rand() % 81;
-		for (int now = start, pos = now; now < start + 81; now++, pos = now % 81) {
-			if (m_lpMap[pos / 9][pos % 9] == 0) {
-				for (int i = 0; i < 9; i++)
-					if (bit[pos / 9][pos % 9] & (1 << i)) {
-						m_lpMap[pos / 9][pos % 9] = i + 1;
-						break;
-					}
-				break;
-			}
-		}
+	for (int i = 0; i < 81; i++)
+		if (m_lpMap[i / 9][i % 9] == 0)
+			m_nBlank++;
+	for (; m_nBlank >= del; m_nBlank--) {
+		int row, col;
+		do {
+			row = rand() % 9;
+			col = rand() % 9;
+		} while (m_lpMap[row][col] > 0);
+		m_lpMap[row][col] = bit2num(bit[row][col]);
 	}
 
 	for (int i = 0; i < 81; i++)
