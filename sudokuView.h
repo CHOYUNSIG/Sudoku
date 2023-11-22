@@ -8,6 +8,10 @@
 #include "SudokuMap.h"
 
 const int FPS = 60;
+const int SCREEN_RATIO_COUNT = 4;
+const int SCREEN_RATIO[4][2] = { {852, 480}, {1280, 720}, {1365, 768}, {1600, 900} };
+const int LANG_COUNT = 2;
+enum LANG {ENG, KOR};
 enum MODE {INIT, LOADING, GAME};
 enum MENU {START, NEW_GAME, CONTINUE, SETTINGS};
 enum INGAME {READY, ON, PAUSE, SAVE, DONE};
@@ -49,7 +53,10 @@ protected:
 protected:
 	DECLARE_MESSAGE_MAP()
 public:
-	int width = 852, height = 480;
+	int width, height;
+	int m_nSoundVolume = 50;
+	int m_nScreenRatio = 1;
+	int m_nLanguage = 0;
 	char font_path[256] = { 0, };
 	CString font_name;
 
@@ -78,6 +85,9 @@ public:
 	void OnNewGameStart(DIFF diff);
 	void OnUserClicked();
 	void OnBackNewGameClicked();
+	void OnSoundVolumeClicked(bool inc);
+	void OnScreenSizeClicked(bool inc);
+	void OnLanguageClicked(bool inc);
 	void OnBackSettingsClicked();
 	void OnNumberKeyClicked(int num);
 	void OnSudokuMapClicked(int index);
