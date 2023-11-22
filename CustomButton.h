@@ -177,7 +177,7 @@ private:
 	CPoint m_ptAnimationStart;
 	clock_t m_clockAnimationInit = clock();
 	bool m_bClicked = false;
-	CString m_strShownText;
+	bool m_bOn = false;
 
 	void OnMouse(UINT nFlags, bool isOn);
 	void OnClicked(UINT nFlags);

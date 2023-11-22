@@ -153,18 +153,16 @@ void TextButton::ChangeTextColor(COLORREF color)
 
 void AnimationButton::OnMouse(UINT nFlags, bool isOn)
 {
-	if (m_nOption & (1 << 0) && isOn)
-		m_strShownText = _T("¢º ") + m_strText;
-	else
-		m_strShownText = m_strText;
+	m_bOn = m_nOption & (1 << 0) && isOn;
 }
 
 void AnimationButton::OnClicked(UINT nFlags)
 {
 	if (m_buttonmode == REMAIN) {
-		m_bClicked = true;
-		if (m_nOption & (1 << 1))
+		if (m_nOption & (1 << 1)) {
+			m_bClicked = true;
 			group->ThrowEvent(1);
+		}
 		else
 			m_callback();
 	}
@@ -180,7 +178,10 @@ void AnimationButton::OnDraw(CDC *pDC)
 		pDC->DrawText(m_strText, CRect(pt.x, pt.y, pt.x + m_rectClick.Width(), pt.y + m_rectClick.Height()), DT_SINGLELINE | DT_CENTER | DT_VCENTER);
 	}
 	else if (m_buttonmode == REMAIN) {
-		pDC->DrawText(m_strShownText, m_rectClick, DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+		CString a = m_strText;
+		if (m_bOn)
+			a = _T("¢º ") + a;
+		pDC->DrawText(a, m_rectClick, DT_SINGLELINE | DT_CENTER | DT_VCENTER);
 	}
 	else if (m_buttonmode == DESTROY) {
 		CPoint pt = GetAnimatedPoint(false);
@@ -254,9 +255,7 @@ bool AnimationButton::Animating()
 }
 
 AnimationButton::AnimationButton(Corner tl, Corner br, Callback callback, CString &text, CString &font, double font_rate, Corner &start, double sec, int option)
-: TextButton(tl, br, callback, text, font, font_rate), m_start(start), m_dAnimationTime(sec), m_nOption(option) {
-	m_strShownText = m_strText;
-}
+: TextButton(tl, br, callback, text, font, font_rate), m_start(start), m_dAnimationTime(sec), m_nOption(option) {}
 
 void AnimationButton::Enable()
 {
