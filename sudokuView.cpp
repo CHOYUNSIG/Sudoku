@@ -322,7 +322,7 @@ int CsudokuView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		preset.Read(buffer, sizeof(buffer));
 		preset.Close();
 
-		char *context;
+		char *context = nullptr;
 		char *line = strtok_s(buffer, ":", &context);
 		int *pre_setting_value[3] = {
 			&m_nSoundVolume,
@@ -537,6 +537,14 @@ void CsudokuView::OnSoundVolumeClicked(int inc)
 	CString a;
 	a.Format(_T("%d%%"), m_nSoundVolume);
 	((TextButton *)(group_settings->group[4]))->ChangeText(a);
+
+	COLORREF l = RGB(0, 0, 0), r = RGB(0, 0, 0);
+	if (m_nSoundVolume == 0)
+		l = RGB(200, 200, 200);
+	if (m_nSoundVolume == 100)
+		r = RGB(200, 200, 200);
+	((TextButton *)(group_settings->group[7]))->ChangeTextColor(l);
+	((TextButton *)(group_settings->group[8]))->ChangeTextColor(r);
 }
 
 void CsudokuView::OnScreenSizeClicked(int inc)
@@ -556,6 +564,14 @@ void CsudokuView::OnScreenSizeClicked(int inc)
 	CString a;
 	a.Format(_T("%d×%d"), SCREEN_RATIO[m_nScreenRatio][0], SCREEN_RATIO[m_nScreenRatio][1]);
 	((TextButton *)(group_settings->group[5]))->ChangeText(a);
+
+	COLORREF l = RGB(0, 0, 0), r = RGB(0, 0, 0);
+	if (m_nScreenRatio == 0)
+		l = RGB(200, 200, 200);
+	if (m_nScreenRatio == SCREEN_RATIO_COUNT - 1)
+		r = RGB(200, 200, 200);
+	((TextButton *)(group_settings->group[9]))->ChangeTextColor(l);
+	((TextButton *)(group_settings->group[10]))->ChangeTextColor(r);
 }
 
 void CsudokuView::OnLanguageClicked(int inc)

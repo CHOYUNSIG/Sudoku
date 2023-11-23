@@ -8,13 +8,17 @@
 #include "SudokuMap.h"
 
 const int FPS = 60;
-const int SCREEN_RATIO_COUNT = 4;
-const int SCREEN_RATIO[4][2] = { {852, 480}, {1280, 720}, {1365, 768}, {1600, 900} };
+
+const int SCREEN_RATIO_COUNT = 5;
+const int SCREEN_RATIO[5][2] = { {864, 486}, {1024, 576}, {1280, 720}, {1366, 768}, {1600, 900} };
+
 const int LANG_COUNT = 2;
 enum LANG {ENG, KOR};
+
 enum MODE {INIT, LOADING, GAME};
 enum MENU {START, NEW_GAME, CONTINUE, SETTINGS};
 enum INGAME {READY, ON, PAUSE, SAVE, DONE};
+
 enum DIFF {EASY, MEDIUM, HARD, USER};
 
 class CsudokuView : public CView
