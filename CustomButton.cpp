@@ -173,6 +173,7 @@ void AnimationButton::OnDraw(CDC *pDC)
 	CFont font, *oldfont;
 	font.CreatePointFont(m_nFontPoint, m_strFontName);
 	oldfont = pDC->SelectObject(&font);
+	pDC->SetTextColor(m_colorText);
 	if (m_buttonmode == CREATE) {
 		CPoint pt = GetAnimatedPoint(true);
 		pDC->DrawText(m_strText, CRect(pt.x, pt.y, pt.x + m_rectClick.Width(), pt.y + m_rectClick.Height()), DT_SINGLELINE | DT_CENTER | DT_VCENTER);
@@ -288,6 +289,7 @@ void EdgeButton::OnDraw(CDC *pDC)
 {
 	CPen *oldpen = pDC->SelectObject(&m_penEdge);
 	CFont font, *oldfont;
+	pDC->SetTextColor(m_colorText);
 	CPoint points[5];
 	double time = (double)(clock() - m_clockClick) / CLOCKS_PER_SEC;
 	if (time > m_dPopTime) {

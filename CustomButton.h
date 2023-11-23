@@ -133,7 +133,7 @@ protected:
 	const double m_dFontRate;
 	const CString m_strFontName;
 	
-	int m_nFontPoint;
+	int m_nFontPoint = 0;
 	CString m_strText;
 	COLORREF m_colorText = RGB(0, 0, 0);
 
