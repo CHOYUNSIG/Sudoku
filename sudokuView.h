@@ -34,6 +34,8 @@ public:
 public:
 	virtual void OnDraw(CDC* pDC);  // 이 뷰를 그리기 위해 재정의되었습니다.
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
+	bool m_bAfterCreateWindow = true;
+	void AfterCreateWindow();
 protected:
 	virtual BOOL OnPreparePrinting(CPrintInfo* pInfo);
 	virtual void OnBeginPrinting(CDC* pDC, CPrintInfo* pInfo);
@@ -85,9 +87,9 @@ public:
 	void OnNewGameStart(DIFF diff);
 	void OnUserClicked();
 	void OnBackNewGameClicked();
-	void OnSoundVolumeClicked(bool inc);
-	void OnScreenSizeClicked(bool inc);
-	void OnLanguageClicked(bool inc);
+	void OnSoundVolumeClicked(int inc);
+	void OnScreenSizeClicked(int inc);
+	void OnLanguageClicked(int inc);
 	void OnBackSettingsClicked();
 	void OnNumberKeyClicked(int num);
 	void OnSudokuMapClicked(int index);

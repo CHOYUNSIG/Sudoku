@@ -15,6 +15,7 @@
 #include "sudokuView.h"
 #include "SudokuMap.h"
 #include "CustomButton.h"
+#include <string.h>
 #include <functional>
 #include <direct.h>
 
@@ -64,10 +65,32 @@ BOOL CsudokuView::PreCreateWindow(CREATESTRUCT& cs)
 	return CView::PreCreateWindow(cs);
 }
 
+void CsudokuView::AfterCreateWindow()
+{
+	CRect fullrect, clientrect;
+	AfxGetMainWnd()->GetWindowRect(&fullrect);
+	GetWindowRect(&clientrect);
+	AfxGetMainWnd()->MoveWindow(CRect(
+		fullrect.TopLeft().x,
+		fullrect.TopLeft().y,
+		fullrect.TopLeft().x + SCREEN_RATIO[m_nScreenRatio][0] + fullrect.Width() - clientrect.Width(),
+		fullrect.TopLeft().y + SCREEN_RATIO[m_nScreenRatio][1] + fullrect.Height() - clientrect.Height()
+	));
+	
+	OnSoundVolumeClicked(0);
+	OnScreenSizeClicked(0);
+	OnLanguageClicked(0);
+}
+
 // CsudokuView 그리기
 
 void CsudokuView::OnDraw(CDC *pDC)
 {
+	if (m_bAfterCreateWindow) {
+		m_bAfterCreateWindow = false;
+		AfterCreateWindow();
+	}
+
 	CsudokuDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
 	if (!pDoc)
@@ -86,7 +109,6 @@ void CsudokuView::OnDraw(CDC *pDC)
 	bitmap.CreateCompatibleBitmap(pDC, width, height);
 	memdc.SelectObject(bitmap);
 	memdc.FillSolidRect(ClientRect, RGB(255, 255, 255));
-
 
 	// TODO: 여기에 원시 데이터에 대한 그리기 코드를 추가합니다.
 	CFont font, *oldfont;
@@ -280,14 +302,40 @@ int CsudokuView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	// TODO:  여기에 특수화된 작성 코드를 추가합니다.
 	SetTimer(0, 500 / FPS, NULL);
+	
+	// 폰트 로딩
+	{
+		if (_getcwd(font_path, sizeof(font_path)) != nullptr) {
+			strcat_s(font_path, "\\res\\MaruBuri-Regular.ttf");
+			AddFontResource(CString(font_path));
+		}
 
-	if (_getcwd(font_path, sizeof(font_path)) != nullptr) {
-		strcat_s(font_path, "\\res\\MaruBuri-Regular.ttf");
-		AddFontResource(CString(font_path));
+		TextButton::m_nDPI = GetDpiForWindow(GetSafeHwnd());
+		font_name = CString("마루 부리 중간");
 	}
 
-	TextButton::m_nDPI = GetDpiForWindow(GetSafeHwnd());
-	font_name = CString("마루 부리 중간");
+	// 세팅값 복원
+	{
+		CStdioFile preset;
+		preset.Open(_T("settings.dat"), CFile::modeReadWrite | CFile::typeText);
+		char buffer[1024] = { 0, };
+		preset.Read(buffer, sizeof(buffer));
+		preset.Close();
+
+		char *context;
+		char *line = strtok_s(buffer, ":", &context);
+		int *pre_setting_value[3] = {
+			&m_nSoundVolume,
+			&m_nScreenRatio,
+			&m_nLanguage
+		};
+
+		for (int i = 0; i < 3; i++) {
+			line = strtok_s(NULL, "\n", &context);
+			*pre_setting_value[i] = atoi(line);
+			line = strtok_s(NULL, ":", &context);
+		}
+	}
 
 	/*
 	* 
@@ -335,37 +383,27 @@ int CsudokuView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		button_settings[2] = new AnimationButton(menu_rect[2][0][0], menu_rect[2][0][1], [=]() {}, CString("언어"), font_name, 0.5, menu_sp[2][0], 0.4, 0b00);
 		button_settings[3] = new AnimationButton(menu_rect[3][0][0], menu_rect[3][0][1], [=]() { OnBackSettingsClicked(); }, CString("뒤로"), font_name, 0.5, menu_sp[3][0], 0.45, 0b11);
 
-		button_settings[4] = new AnimationButton(menu_rect[0][1][0], menu_rect[0][1][1], [=]() {}, CString("슬라이더"), font_name, 0.5, menu_sp[0][1], 0.3, 0b00);
-		button_settings[5] = new AnimationButton(menu_rect[1][1][0], menu_rect[1][1][1], [=]() {}, CString("좌우버튼"), font_name, 0.5, menu_sp[1][1], 0.35, 0b00);
-		button_settings[6] = new AnimationButton(menu_rect[2][1][0], menu_rect[2][1][1], [=]() {}, CString("좌우버튼"), font_name, 0.5, menu_sp[2][1], 0.4, 0b00);
+		button_settings[4] = new AnimationButton(menu_rect[0][1][0], menu_rect[0][1][1] , []() {}, CString(""), font_name, 0.5, menu_sp[0][1], 0.3, 0b00);
+		button_settings[5] = new AnimationButton(menu_rect[1][1][0], menu_rect[1][1][1], []() {}, CString(""), font_name, 0.5, menu_sp[1][1], 0.35, 0b00);
+		button_settings[6] = new AnimationButton(menu_rect[2][1][0], menu_rect[2][1][1], []() {}, CString(""), font_name, 0.5, menu_sp[2][1], 0.4, 0b00);
 
-		std::function<void(bool)> cb[3] = {
-			[=](bool inc) { OnSoundVolumeClicked(inc); },
-			[=](bool inc) { OnScreenSizeClicked(inc); },
-			[=](bool inc) { OnLanguageClicked(inc); }
+		std::function<void(int)> cb[3] = {
+			[=](int inc) { OnSoundVolumeClicked(inc); },
+			[=](int inc) { OnScreenSizeClicked(inc); },
+			[=](int inc) { OnLanguageClicked(inc); }
 		};
 
 		for (int i = 0; i < 3; i++) {
-			button_settings[7 + i * 2] = new AnimationButton(
-				[=](int width, int height) { 
-					CPoint rect = menu_rect[i][1][0](width, height);
-					return CPoint(rect.x - height / 10, rect.y);
-				},
+			button_settings[7 + i * 2] = new AnimationButton(menu_rect[i][1][0],
 				[=](int width, int height) {
 					CPoint rect = menu_rect[i][1][0](width, height);
-					return CPoint(rect.x, rect.y + height / 10);
-				},
-				[=]() { cb[i](false); }, CString("◀"), font_name, 0.5, menu_sp[i][1], 0.3 + 0.05 * i, 0b00);
+					return CPoint(rect.x + height / 10, rect.y + height / 10);
+				}, [=]() { cb[i](-1); }, CString("◀"), font_name, 0.5, menu_sp[i][1], 0.3 + 0.05 * i, 0b00);
 			button_settings[8 + i * 2] = new AnimationButton(
 				[=](int width, int height) {
 					CPoint rect = menu_rect[i][1][1](width, height);
-					return CPoint(rect.x, rect.y - height / 10);
-				},
-				[=](int width, int height) {
-					CPoint rect = menu_rect[i][1][1](width, height);
-					return CPoint(rect.x + height / 10, rect.y);
-				},
-				[=]() { cb[i](true); }, CString("▶"), font_name, 0.5, menu_sp[i][1], 0.3 + 0.05 * i, 0b00);
+					return CPoint(rect.x - height / 10, rect.y - height / 10);
+				}, menu_rect[i][1][1], [=]() { cb[i](1); }, CString("▶"), font_name, 0.5, menu_sp[i][1], 0.3 + 0.05 * i, 0b00);
 		}
 
 		group_settings = new ButtonGroup(13, button_settings);
@@ -492,24 +530,18 @@ void CsudokuView::OnBackNewGameClicked() {
 	m_menu = START;
 }
 
-void CsudokuView::OnSoundVolumeClicked(bool inc)
+void CsudokuView::OnSoundVolumeClicked(int inc)
 {
-	if (inc)
-		m_nSoundVolume = min(m_nSoundVolume + 10, 100);
-	else
-		m_nSoundVolume = max(m_nSoundVolume - 10, 0);
+	m_nSoundVolume = max(min(m_nSoundVolume + inc * 10, 100), 0);
 
 	CString a;
 	a.Format(_T("%d%%"), m_nSoundVolume);
 	((TextButton *)(group_settings->group[4]))->ChangeText(a);
 }
 
-void CsudokuView::OnScreenSizeClicked(bool inc)
+void CsudokuView::OnScreenSizeClicked(int inc)
 {
-	if (inc)
-		m_nScreenRatio = (m_nScreenRatio + 1) % SCREEN_RATIO_COUNT;
-	else
-		m_nScreenRatio = (m_nScreenRatio + SCREEN_RATIO_COUNT - 1) % SCREEN_RATIO_COUNT;
+	m_nScreenRatio = max(min(m_nScreenRatio + inc, SCREEN_RATIO_COUNT - 1), 0);
 
 	CRect fullrect, clientrect;
 	AfxGetMainWnd()->GetWindowRect(&fullrect);
@@ -526,15 +558,26 @@ void CsudokuView::OnScreenSizeClicked(bool inc)
 	((TextButton *)(group_settings->group[5]))->ChangeText(a);
 }
 
-void CsudokuView::OnLanguageClicked(bool inc)
+void CsudokuView::OnLanguageClicked(int inc)
 {
-	if (inc)
-		m_nLanguage = (m_nLanguage + 1) % LANG_COUNT;
-	else
-		m_nLanguage = (m_nLanguage + LANG_COUNT - 1) % LANG_COUNT;
+	m_nLanguage = (m_nLanguage + LANG_COUNT + inc) % LANG_COUNT;
 }
 
 void CsudokuView::OnBackSettingsClicked() {
+	CString sound, screen, lang;
+	sound.Format(_T("sound: %d\n"), m_nSoundVolume);
+	screen.Format(_T("screen: %d\n"), m_nScreenRatio);
+	lang.Format(_T("lang: %d\n"), m_nLanguage);
+	CString st = sound + screen + lang;
+	char buffer[1024] = { 0, };
+	for (int i = 0; i < st.GetLength(); i++)
+		buffer[i] = st[i];
+
+	CStdioFile preset;
+	preset.Open(_T("settings.dat"), CFile::modeWrite | CFile::typeText);
+	preset.Write(buffer, sizeof(char) * st.GetLength());
+	preset.Close();
+
 	group_init->Enable();
 	m_menu = START;
 }
