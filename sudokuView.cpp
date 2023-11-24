@@ -18,6 +18,7 @@
 #include <string.h>
 #include <functional>
 #include <direct.h>
+#include <thread>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -140,7 +141,10 @@ void CsudokuView::OnDraw(CDC *pDC)
 		// 로딩
 		font.CreatePointFont((int)(height * 72 / GetDpiForWindow(GetSafeHwnd())), font_name);
 		oldfont = memdc.SelectObject(&font);
-		memdc.DrawText(_T("Loading..."), CRect(0, 0, width, height), DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+		string = CString("Loading");
+		for (int i = 0; i < (clock() - m_clockRequested) * 2 / CLOCKS_PER_SEC % 4; i++)
+			string += CString(".");
+		memdc.DrawText(string, CRect(0, 0, width, height), DT_SINGLELINE | DT_CENTER | DT_VCENTER);
 		memdc.SelectObject(oldfont);
 		font.DeleteObject();
 	}
@@ -304,7 +308,7 @@ int CsudokuView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		font_name = CString("마루 부리 중간");
 	}
 
-	// 세팅값 복원
+	// 설정값 복원
 	{
 		CStdioFile preset;
 		preset.Open(_T("settings.dat"), CFile::modeReadWrite | CFile::typeText);
@@ -476,21 +480,20 @@ void CsudokuView::OnNewgameClicked() {
 }
 
 void CsudokuView::OnNewGameStart(DIFF diff) {
+	m_clockRequested = clock();
+
+	int blank = 0;
+	if (diff == EASY) blank = 20;
+	else if (diff == MEDIUM) blank = 40;
+	else if (diff == HARD) blank = 100;
+	
+	std::thread([&]() {
+		m_mutex.lock();
+		m_map = new SudokuMap(blank);
+		m_mutex.unlock();
+	}).detach();
+	while (m_mutex.try_lock()) m_mutex.unlock();
 	m_mode = LOADING;
-	CDC* pDC = GetDC();
-	OnDraw(pDC);
-	pDC->DeleteDC();
-
-	if (diff == EASY) m_map = new SudokuMap(20);
-	else if (diff == MEDIUM) m_map = new SudokuMap(40);
-	else if (diff == HARD) m_map = new SudokuMap(100);
-
-	m_ingame = READY;
-	m_nSelRow = 4;
-	m_nSelCol = 4;
-	m_clockGenerated = clock();
-	m_mode = GAME;
-	group_numberkey->Enable();
 }
 
 void CsudokuView::OnContinueClicked() {
@@ -606,6 +609,8 @@ void CsudokuView::OnDoneClicked() {
 	group_init->Enable();
 	m_mode = INIT;
 	m_menu = START;
+	delete m_map;
+	m_map = nullptr;
 }
 
 
@@ -626,8 +631,18 @@ void CsudokuView::OnTimer(UINT_PTR nIDEvent)
 
 	if (nIDEvent == 0) {
 		Invalidate(TRUE);
-
-		if (m_mode == GAME) {
+		
+		if (m_mode == LOADING) {
+			if (m_mutex.try_lock()) {
+				m_mutex.unlock();
+				m_nSelRow = m_nSelCol = 4;
+				m_clockGenerated = clock();
+				m_ingame = READY;
+				m_mode = GAME;
+				group_numberkey->Enable();
+			}
+		}
+		else if (m_mode == GAME) {
 			if (m_ingame == READY) {
 				// 준비시간
 				if (clock() - m_clockGenerated >= 3 * CLOCKS_PER_SEC) {

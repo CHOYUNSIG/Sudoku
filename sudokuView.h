@@ -7,6 +7,8 @@
 #include "CustomButton.h"
 #include "SudokuMap.h"
 
+#include <mutex>
+
 const int FPS = 60;
 
 const int SCREEN_RATIO_COUNT = 5;
@@ -20,6 +22,10 @@ enum MENU {START, NEW_GAME, CONTINUE, SETTINGS};
 enum INGAME {READY, ON, PAUSE, SAVE, DONE};
 
 enum DIFF {EASY, MEDIUM, HARD, USER};
+
+
+
+
 
 class CsudokuView : public CView
 {
@@ -71,8 +77,10 @@ public:
 	INGAME m_ingame = READY;
 
 	SudokuMap *m_map = nullptr;
+	std::mutex m_mutex;
 	int m_nSelRow;
 	int m_nSelCol;
+	clock_t m_clockRequested;
 	clock_t m_clockGenerated;
 	clock_t m_clockStarted;
 	clock_t m_clockEnded;
