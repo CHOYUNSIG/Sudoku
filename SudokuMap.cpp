@@ -10,17 +10,35 @@
 
 
 
-inline static bool contradict(int map[9][9], int row, int col)
-{
-	if (map[row][col] == 0)
-		return false;
-	for (int i = 0; i < 9; i++)
-		if ((i != row && map[i][col] % 10 == map[row][col] % 10) ||
-			(i != col && map[row][i] % 10 == map[row][col] % 10) ||
-			(row / 3 * 3 + i / 3 != row && col != col / 3 * 3 + i % 3 && map[row / 3 * 3 + i / 3][col / 3 * 3 + i % 3] % 10 == map[row][col] % 10))
+struct RandomIterator {
+private: 
+	int start, now, limit;
+	bool init = false;
+
+public:
+	RandomIterator(int limit)
+		: limit(limit), start(rand() % limit), now(start) {}
+
+	bool Increase() {
+		init = true;
+		if (now > start + limit)
+			return false;
+		else {
+			now++;
 			return true;
-	return false;
-}
+		}
+	}
+
+	int Get() const {
+		if (!init)
+			throw;
+		return now % limit;
+	}
+};
+
+
+
+
 
 inline static bool generate_all(int map[9][9], int pos)
 {
@@ -52,16 +70,17 @@ inline static int bitsum(int n)
 
 inline static int bit2num(int bit)
 {
-	for (int start = rand() % 9, i = start, now = start; now < start + 9; now++, i = now % 9)
-		if (bit & (1 << i))
-			return i + 1;
+	for (RandomIterator i(9); i.Increase(); )
+		if (bit & (1 << i.Get()))
+			return i.Get() + 1;
 	return 0;
 }
 
 inline static bool subset(int bit[9][9])
 {
 	bool changed = false;
-	for (int pos = 0; pos < 9; pos++) {
+	for (RandomIterator iter_pos(9); iter_pos.Increase(); ) {
+		int pos = iter_pos.Get();
 		int cord[3][9][2] = { 0, };
 		for (int i = 0; i < 9; i++) {
 			cord[0][i][0] = pos;
@@ -83,7 +102,8 @@ inline static bool subset(int bit[9][9])
 					for (int j = 0; j < 3; j++)
 						if (com[i])
 							b[j] |= bit[cord[j][i][0]][cord[j][i][1]];
-				for (int i = 0; i < 3; i++)
+				for (RandomIterator iter(3); iter.Increase(); ) {
+					int i = iter.Get();
 					if (bitsum(b[i]) == set) {
 						for (int j = 0; j < 9; j++)
 							if (!com[j]) {
@@ -93,6 +113,7 @@ inline static bool subset(int bit[9][9])
 									changed = true;
 							}
 					}
+				}
 			} while (std::next_permutation(com.begin(), com.end()));
 		}
 	}
@@ -102,7 +123,8 @@ inline static bool subset(int bit[9][9])
 inline static bool intersection(int bit[9][9])
 {
 	bool changed = false;
-	for (int pos = 0; pos < 9; pos++) {
+	for (RandomIterator iter_pos(9); iter_pos.Increase(); ) {
+		int pos = iter_pos.Get();
 		int core[6][3][2] = { 0, };
 		int group[6][2][6][2] = { 0, };
 		for (int r = 0; r < 3; r++) {
@@ -129,7 +151,8 @@ inline static bool intersection(int bit[9][9])
 				}
 			}
 		}
-		for (int i = 0; i < 6; i++) {
+		for (RandomIterator iter(6); iter.Increase(); ) {
+			int i = iter.Get();
 			int bcore = 0;
 			int bgroup[2] = { 0, 0 };
 			for (int j = 0; j < 3; j++)
@@ -137,12 +160,13 @@ inline static bool intersection(int bit[9][9])
 			for (int j = 0; j < 6; j++)
 				for (int k = 0; k < 2; k++)
 					bgroup[k] |= bit[group[i][k][j][0]][group[i][k][j][1]];
-			for (int j = 0; j < 2; j++) {
-				int mask = bcore & ~bgroup[j];
+			for (RandomIterator iter_group(2); iter_group.Increase(); ) {
+				int g = iter_group.Get();
+				int mask = bcore & ~bgroup[g];
 				for (int k = 0; k < 6; k++) {
-					int pre = bit[group[i][(j + 1) % 2][k][0]][group[i][(j + 1) % 2][k][1]];
-					bit[group[i][(j + 1) % 2][k][0]][group[i][(j + 1) % 2][k][1]] &= ~mask;
-					if (bit[group[i][(j + 1) % 2][k][0]][group[i][(j + 1) % 2][k][1]] != pre)
+					int pre = bit[group[i][(g + 1) % 2][k][0]][group[i][(g + 1) % 2][k][1]];
+					bit[group[i][(g + 1) % 2][k][0]][group[i][(g + 1) % 2][k][1]] &= ~mask;
+					if (bit[group[i][(g + 1) % 2][k][0]][group[i][(g + 1) % 2][k][1]] != pre)
 						changed = true;
 				}
 			}
@@ -154,7 +178,8 @@ inline static bool intersection(int bit[9][9])
 inline static bool generate_unique(int map[9][9], int bit[9][9])
 {
 	int row = -1, col = -1;
-	for (int start = rand() % 81, pos = start, now = start; now < start + 81; now++, pos = now % 81) {
+	for (RandomIterator iter_pos(81); iter_pos.Increase(); ) {
+		int pos = iter_pos.Get();
 		int a = bitsum(bit[pos / 9][pos % 9]);
 		if (a == 0)
 			return false;
@@ -171,7 +196,8 @@ inline static bool generate_unique(int map[9][9], int bit[9][9])
 	for (int i = 0; i < 81; i++)
 		pre_bit[i / 9][i % 9] = bit[i / 9][i % 9];
 
-	for (int start = rand() % 9, i = start, now = start; now < start + 9; now++, i = now % 9) {
+	for (RandomIterator iter(9); iter.Increase(); ) {
+		int i = iter.Get();
 		if (bit[row][col] & (1 << i)) {
 			map[row][col] = i + 1;
 			bit[row][col] = (1 << i);
@@ -190,6 +216,8 @@ inline static bool generate_unique(int map[9][9], int bit[9][9])
 
 SudokuMap::SudokuMap(int del)
 {
+	srand((unsigned int)time(nullptr));
+
 	int bit[9][9] = { 0, };
 	for (int i = 0; i < 81; i++) {
 		m_lpMap[i / 9][i % 9] = 0;
