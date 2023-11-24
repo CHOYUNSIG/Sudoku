@@ -219,10 +219,8 @@ SudokuMap::SudokuMap(int del)
 	srand((unsigned int)time(nullptr));
 
 	int bit[9][9] = { 0, };
-	for (int i = 0; i < 81; i++) {
-		m_lpMap[i / 9][i % 9] = 0;
+	for (int i = 0; i < 81; i++)
 		bit[i / 9][i % 9] = 0b111111111;
-	}
 
 	generate_unique(m_lpMap, bit);
 
@@ -243,10 +241,11 @@ SudokuMap::SudokuMap(int del)
 			m_lpMap[i / 9][i % 9] += 10;
 }
 
-SudokuMap::SudokuMap(int pre_map[9][9])
+SudokuMap::SudokuMap(int pre_map[9][9], int pre_memo[9][9])
 {
 	for (int i = 0; i < 9 * 9; i++) {
 		m_lpMap[i / 9][i % 9] = pre_map[i / 9][i % 9];
+		m_lpMemo[i / 9][i % 9] = pre_memo[i / 9][i % 9];
 		if (m_lpMap[i / 9][i % 9] == 0)
 			m_nBlank++;
 	}
@@ -257,6 +256,11 @@ int SudokuMap::GetValue(int row, int col) const
 	return m_lpMap[row][col] % 10;
 }
 
+int SudokuMap::GetMemo(int row, int col) const
+{
+	return m_lpMemo[row][col];
+}
+
 bool SudokuMap::Editable(int row, int col) const
 {
 	return m_lpMap[row][col] < 10;
@@ -264,13 +268,28 @@ bool SudokuMap::Editable(int row, int col) const
 
 void SudokuMap::SetValue(int value, int row, int col)
 {
-	if (m_lpMap[row][col] < 10){
-		if (m_lpMap[row][col] > 0 && value == 0)
-			m_nBlank++;
-		else if (m_lpMap[row][col] == 0 && value > 0)
-			m_nBlank--;
+	if (Editable(row, col)){
+		if (m_lpMap[row][col] > 0 && value == 0) m_nBlank++;
+		else if (m_lpMap[row][col] == 0 && value > 0) m_nBlank--;
 		m_lpMap[row][col] = value;
+		if (value != 0 && !Contradict(row, col)) {
+			m_lpMemo[row][col] = 0;
+			for (int i = 0; i < 9; i++) {
+				m_lpMemo[row][i] &= ~(1 << (value - 1));
+				m_lpMemo[i][col] &= ~(1 << (value - 1));
+				m_lpMemo[row / 3 * 3 + i / 3][col / 3 * 3 + i % 3] &= ~(1 << (value - 1));
+			}
+		}
 	}
+}
+
+bool SudokuMap::ToggleMemo(int value, int row, int col)
+{
+	if (GetValue(row, col) == 0) {
+		m_lpMemo[row][col] ^= (1 << (value - 1));
+		if (m_lpMemo[row][col] & (1 << (value - 1))) return true;
+	}
+	return false;
 }
 
 bool SudokuMap::Contradict() const
@@ -280,9 +299,9 @@ bool SudokuMap::Contradict() const
 		int col = 0;
 		int box = 0;
 		for (int j = 0; j < 9; j++) {
-			int row_now = 1 << (m_lpMap[i][j] % 10);
-			int col_now = 1 << (m_lpMap[j][i] % 10);
-			int box_now = 1 << (m_lpMap[i / 3 * 3 + j / 3][i / 3 * 3 + j % 3] % 10);
+			int row_now = 1 << GetValue(i, j);
+			int col_now = 1 << GetValue(j, i);
+			int box_now = 1 << GetValue(i / 3 * 3 + j / 3, i / 3 * 3 + j % 3);
 			if ((row_now > 1 && row & row_now) || (col_now > 1 && col & col_now) || (box_now > 1 && box & box_now))
 				return true;
 			else {
@@ -297,12 +316,12 @@ bool SudokuMap::Contradict() const
 
 bool SudokuMap::Contradict(int row, int col) const
 {
-	if (m_lpMap[row][col] == 0)
+	if (GetValue(row, col) == 0)
 		return false;
 	for (int i = 0; i < 9; i++)
-		if ((i != row && m_lpMap[i][col] % 10 == m_lpMap[row][col] % 10) ||
-			(i != col && m_lpMap[row][i] % 10 == m_lpMap[row][col] % 10) ||
-			(row / 3 * 3 + i / 3 != row && col != col / 3 * 3 + i % 3 && m_lpMap[row / 3 * 3 + i / 3][col / 3 * 3 + i % 3] % 10 == m_lpMap[row][col] % 10))
+		if ((i != row && GetValue(i, col) == GetValue(row, col)) ||
+			(i != col && GetValue(row, i) == GetValue(row, col)) ||
+			(row / 3 * 3 + i / 3 != row && col != col / 3 * 3 + i % 3 && GetValue(row / 3 * 3 + i / 3, col / 3 * 3 + i % 3) == GetValue(row, col)))
 			return true;
 	return false;
 }

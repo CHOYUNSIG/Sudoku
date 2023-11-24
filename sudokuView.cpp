@@ -127,11 +127,13 @@ void CsudokuView::OnDraw(CDC *pDC)
 
 	if (m_mode == INIT) {
 		// 제목
-		font.CreatePointFont((int)(height * 1.5 * 72 / GetDpiForWindow(GetSafeHwnd())), font_name);
-		oldfont = memdc.SelectObject(&font);
-		memdc.DrawText(_T(" Sudoku™"), CRect(0, height / 10, width, height * 3 / 10), DT_SINGLELINE | DT_CENTER | DT_VCENTER);
-		memdc.SelectObject(oldfont);
-		font.DeleteObject();
+		{
+			font.CreatePointFont((int)(height * 1.5 * 72 / GetDpiForWindow(GetSafeHwnd())), font_name);
+			oldfont = memdc.SelectObject(&font);
+			memdc.DrawText(_T(" Sudoku™"), CRect(0, height / 10, width, height * 3 / 10), DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+			memdc.SelectObject(oldfont);
+			font.DeleteObject();
+		}
 		// 랭킹판
 		if (m_menu == START) {
 			
@@ -139,105 +141,172 @@ void CsudokuView::OnDraw(CDC *pDC)
 	}
 	else if (m_mode == LOADING) {
 		// 로딩
-		font.CreatePointFont((int)(height * 72 / GetDpiForWindow(GetSafeHwnd())), font_name);
-		oldfont = memdc.SelectObject(&font);
-		string = CString("Loading");
-		for (int i = 0; i < (clock() - m_clockRequested) * 2 / CLOCKS_PER_SEC % 4; i++)
-			string += CString(".");
-		memdc.DrawText(string, CRect(0, 0, width, height), DT_SINGLELINE | DT_CENTER | DT_VCENTER);
-		memdc.SelectObject(oldfont);
-		font.DeleteObject();
+		{
+			font.CreatePointFont((int)(height * 72 / GetDpiForWindow(GetSafeHwnd())), font_name);
+			oldfont = memdc.SelectObject(&font);
+			string = CString("Loading");
+			for (int i = 0; i < (clock() - m_clockRequested) * 2 / CLOCKS_PER_SEC % 4; i++)
+				string += CString(".");
+			memdc.DrawText(string, CRect(0, 0, width, height), DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+			memdc.SelectObject(oldfont);
+			font.DeleteObject();
+		}
 	}
 	else if (m_mode == GAME) {
 		if (m_ingame == READY) {
-			// 카운트다운 글자
-			font.CreatePointFont(height * 72 / GetDpiForWindow(GetSafeHwnd()), font_name);
-			oldfont = memdc.SelectObject(&font);
-			memdc.DrawText(_T("준비!"), CRect(width / 20, height / 20, width / 20 + height * 9 / 10, height / 2), DT_SINGLELINE | DT_CENTER | DT_BOTTOM);
-			memdc.SelectObject(oldfont);
-			font.DeleteObject();
-			font.CreatePointFont(height * 72 / GetDpiForWindow(GetSafeHwnd()), _T("consolas"));
-			oldfont = memdc.SelectObject(&font);
-			string.Format(_T("%.2fs"), 3 - (double)(clock() - m_clockGenerated) / CLOCKS_PER_SEC);
-			memdc.DrawText(string, CRect(width / 20, height / 2, width / 20 + height * 9 / 10, height * 19 / 20), DT_SINGLELINE | DT_CENTER | DT_TOP);
-			memdc.SelectObject(oldfont);
-			font.DeleteObject();
+			// 카운트다운
+			{
+				font.CreatePointFont(height * 72 / GetDpiForWindow(GetSafeHwnd()), font_name);
+				oldfont = memdc.SelectObject(&font);
+				memdc.DrawText(_T("준비!"), CRect(width / 20, height / 20, width / 20 + height * 9 / 10, height / 2), DT_SINGLELINE | DT_CENTER | DT_BOTTOM);
+				memdc.SelectObject(oldfont);
+				font.DeleteObject();
+				font.CreatePointFont(height * 72 / GetDpiForWindow(GetSafeHwnd()), _T("consolas"));
+				oldfont = memdc.SelectObject(&font);
+				string.Format(_T("%.2fs"), 3 - (double)(clock() - m_clockGenerated) / CLOCKS_PER_SEC);
+				memdc.DrawText(string, CRect(width / 20, height / 2, width / 20 + height * 9 / 10, height * 19 / 20), DT_SINGLELINE | DT_CENTER | DT_TOP);
+				memdc.SelectObject(oldfont);
+				font.DeleteObject();
+			}
 			// 게임판 테두리
-			CPen pen, *oldpen;
-			pen.CreatePen(PS_SOLID, 3, RGB(0, 0, 0));
-			oldpen = memdc.SelectObject(&pen);
-			memdc.MoveTo(CPoint(width / 20, height / 20));
-			memdc.LineTo(CPoint(width / 20 + height * 9 / 10, height / 20));
-			memdc.MoveTo(CPoint(width / 20, height / 20));
-			memdc.LineTo(CPoint(width / 20, height * 19 / 20));
-			memdc.MoveTo(CPoint(width / 20, height * 19 / 20));
-			memdc.LineTo(CPoint(width / 20 + height * 9 / 10, height * 19 / 20));
-			memdc.MoveTo(CPoint(width / 20 + height * 9 / 10, height / 20));
-			memdc.LineTo(CPoint(width / 20 + height * 9 / 10, height * 19 / 20));
-			memdc.SelectObject(oldpen);
-			pen.DeleteObject();
+			{
+				CPen pen, *oldpen;
+				pen.CreatePen(PS_SOLID, 3, RGB(0, 0, 0));
+				oldpen = memdc.SelectObject(&pen);
+				memdc.MoveTo(CPoint(width / 20, height / 20));
+				memdc.LineTo(CPoint(width / 20 + height * 9 / 10, height / 20));
+				memdc.MoveTo(CPoint(width / 20, height / 20));
+				memdc.LineTo(CPoint(width / 20, height * 19 / 20));
+				memdc.MoveTo(CPoint(width / 20, height * 19 / 20));
+				memdc.LineTo(CPoint(width / 20 + height * 9 / 10, height * 19 / 20));
+				memdc.MoveTo(CPoint(width / 20 + height * 9 / 10, height / 20));
+				memdc.LineTo(CPoint(width / 20 + height * 9 / 10, height * 19 / 20));
+				memdc.SelectObject(oldpen);
+				pen.DeleteObject();
+			}
 		}
-		else if (m_ingame == ON || m_ingame == DONE) {
-			// 게임판 가는 선
-			pen.CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
-			oldpen = memdc.SelectObject(&pen);
-			for (int i = 0; i < 10; i++) {
-				memdc.MoveTo(CPoint(width / 20, height * (2 * i + 1) / 20));
-				memdc.LineTo(CPoint(width / 20 + height * 9 / 10, height * (2 * i + 1) / 20));
-				memdc.MoveTo(CPoint(width / 20 + height * i / 10, height / 20));
-				memdc.LineTo(CPoint(width / 20 + height * i / 10, height * 19 / 20));
+		if (m_ingame == ON || m_ingame == DONE) {
+			// 메모 숫자
+			{
+				font.CreatePointFont(height * 24 / GetDpiForWindow(GetSafeHwnd()), _T("굴림"));
+				oldfont = memdc.SelectObject(&font);
+				memdc.SetTextColor(RGB(150, 150, 150));
+				for (int i = 0; i < 9; i++)
+					for (int j = 0; j < 9; j++) {
+						if (m_map->GetValue(i, j) == 0) {
+							int memo = m_map->GetMemo(i, j);
+							for (int k = 0; k < 9; k++)
+								if (memo & (1 << k)) {
+									string.Format(_T("%d"), k + 1);
+									memdc.DrawText(string, CRect(
+										width / 20 + height * j / 10 + height * (k % 3) / 30,
+										height * (i * 2 + 1) / 20 + height * (k / 3) / 30,
+										width / 20 + height * j / 10 + height * (k % 3 + 1) / 30,
+										height * (i * 2 + 1) / 20 + height * (k / 3 + 1) / 30
+									), DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+								}
+						}
+					}
+				memdc.SetTextColor(RGB(255, 255, 255));
+				memdc.SelectObject(oldfont);
+				font.DeleteObject();
 			}
-			memdc.SelectObject(oldpen);
-			pen.DeleteObject();
-			// 게임판 굵은 선
-			pen.CreatePen(PS_SOLID, 3, RGB(0, 0, 0));
-			oldpen = memdc.SelectObject(&pen);
-			for (int i = 0; i < 4; i++) {
-				memdc.MoveTo(CPoint(width / 20, height * (6 * i + 1) / 20));
-				memdc.LineTo(CPoint(width / 20 + height * 9 / 10, height * (6 * i + 1) / 20));
-				memdc.MoveTo(CPoint(width / 20 + height * i * 3 / 10, height / 20));
-				memdc.LineTo(CPoint(width / 20 + height * i * 3 / 10, height * 19 / 20));
+			// 게임판
+			{
+				// 게임판 - 가는 선
+				pen.CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
+				oldpen = memdc.SelectObject(&pen);
+				for (int i = 0; i < 10; i++) {
+					memdc.MoveTo(CPoint(width / 20, height * (2 * i + 1) / 20));
+					memdc.LineTo(CPoint(width / 20 + height * 9 / 10, height * (2 * i + 1) / 20));
+					memdc.MoveTo(CPoint(width / 20 + height * i / 10, height / 20));
+					memdc.LineTo(CPoint(width / 20 + height * i / 10, height * 19 / 20));
+				}
+				memdc.SelectObject(oldpen);
+				pen.DeleteObject();
+				// 게임판 - 굵은 선
+				pen.CreatePen(PS_SOLID, 3, RGB(0, 0, 0));
+				oldpen = memdc.SelectObject(&pen);
+				for (int i = 0; i < 4; i++) {
+					memdc.MoveTo(CPoint(width / 20, height * (6 * i + 1) / 20));
+					memdc.LineTo(CPoint(width / 20 + height * 9 / 10, height * (6 * i + 1) / 20));
+					memdc.MoveTo(CPoint(width / 20 + height * i * 3 / 10, height / 20));
+					memdc.LineTo(CPoint(width / 20 + height * i * 3 / 10, height * 19 / 20));
+				}
+				memdc.SelectObject(oldpen);
+				pen.DeleteObject();
+				// 게임판 - 선택된 셀
+				pen.CreatePen(PS_SOLID, 5, RGB(255, 100, 100));
+				oldpen = memdc.SelectObject(&pen);
+				memdc.MoveTo(CPoint(width / 20 + height * m_nSelCol / 10, height * (2 * m_nSelRow + 1) / 20));
+				memdc.LineTo(CPoint(width / 20 + height * m_nSelCol / 10, height * (2 * m_nSelRow + 3) / 20));
+				memdc.MoveTo(CPoint(width / 20 + height * (m_nSelCol + 1) / 10, height * (2 * m_nSelRow + 1) / 20));
+				memdc.LineTo(CPoint(width / 20 + height * (m_nSelCol + 1) / 10, height * (2 * m_nSelRow + 3) / 20));
+				memdc.MoveTo(CPoint(width / 20 + height * m_nSelCol / 10, height * (2 * m_nSelRow + 1) / 20));
+				memdc.LineTo(CPoint(width / 20 + height * (m_nSelCol + 1) / 10, height * (2 * m_nSelRow + 1) / 20));
+				memdc.MoveTo(CPoint(width / 20 + height * m_nSelCol / 10, height * (2 * m_nSelRow + 3) / 20));
+				memdc.LineTo(CPoint(width / 20 + height * (m_nSelCol + 1) / 10, height * (2 * m_nSelRow + 3) / 20));
+				memdc.SelectObject(oldpen);
+				pen.DeleteObject();
 			}
-			memdc.SelectObject(oldpen);
-			pen.DeleteObject();
-			// 게임판 선택된 셀
-			pen.CreatePen(PS_SOLID, 5, RGB(255, 100, 100));
-			oldpen = memdc.SelectObject(&pen);
-			memdc.MoveTo(CPoint(width / 20 + height * m_nSelCol / 10, height * (2 * m_nSelRow + 1) / 20));
-			memdc.LineTo(CPoint(width / 20 + height * m_nSelCol / 10, height * (2 * m_nSelRow + 3) / 20));
-			memdc.MoveTo(CPoint(width / 20 + height * (m_nSelCol + 1) / 10, height * (2 * m_nSelRow + 1) / 20));
-			memdc.LineTo(CPoint(width / 20 + height * (m_nSelCol + 1) / 10, height * (2 * m_nSelRow + 3) / 20));
-			memdc.MoveTo(CPoint(width / 20 + height * m_nSelCol / 10, height * (2 * m_nSelRow + 1) / 20));
-			memdc.LineTo(CPoint(width / 20 + height * (m_nSelCol + 1) / 10, height * (2 * m_nSelRow + 1) / 20));
-			memdc.MoveTo(CPoint(width / 20 + height * m_nSelCol / 10, height * (2 * m_nSelRow + 3) / 20));
-			memdc.LineTo(CPoint(width / 20 + height * (m_nSelCol + 1) / 10, height * (2 * m_nSelRow + 3) / 20));
-			memdc.SelectObject(oldpen);
-			pen.DeleteObject();
+		}
+		if (m_ingame == ON) {
 			// 경과 시간
-			if (m_ingame == ON) {
+			{
 				font.CreatePointFont(height * 36 / GetDpiForWindow(GetSafeHwnd()), _T("consolas"));
 				oldfont = memdc.SelectObject(&font);
 				string.Format(_T("%.2fs"), (double)(clock() - m_clockStarted) / CLOCKS_PER_SEC);
 				memdc.DrawText(string, CRect(
 					0,
 					height / 9,
-					width * 21 / 40 + height * 9 / 20 + height / 18,
+					width * 21 / 40 + height * 9 / 20,
 					height * 2 / 9
 				), DT_SINGLELINE | DT_RIGHT | DT_VCENTER);
+				memdc.SelectObject(oldfont);
+				font.DeleteObject();
 			}
-			else {
+		}
+		if (m_ingame == DONE) {
+			// 게임 결과
+			{
+				// 게임 결과 - 난이도
+				font.CreatePointFont(height * 36 / GetDpiForWindow(GetSafeHwnd()), font_name);
+				oldfont = memdc.SelectObject(&font);
+				switch (m_diff) {
+				case EASY:
+					string = CString("쉬움");
+					break;
+				case MEDIUM:
+					string = CString("보통");
+					break;
+				case HARD:
+					string = CString("어려움");
+					break;
+				case USER:
+					string = CString("사용자 정의");
+					break;
+				}
+				memdc.DrawText(string, CRect(
+					width * 21 / 40 + height * 9 / 20 - width,
+					0,
+					width * 21 / 40 + height * 9 / 20 + width,
+					height / 2
+				), DT_SINGLELINE | DT_CENTER | DT_BOTTOM);
+				memdc.SelectObject(oldfont);
+				font.DeleteObject();
+				// 게임 결과 - 완료 시간
 				font.CreatePointFont(height * 72 / GetDpiForWindow(GetSafeHwnd()), _T("consolas"));
 				oldfont = memdc.SelectObject(&font);
 				string.Format(_T("%.2fs"), (double)(m_clockEnded - m_clockStarted) / CLOCKS_PER_SEC);
 				memdc.DrawText(string, CRect(
 					width * 21 / 40 + height * 9 / 20 - width,
-					0,
+					height / 2,
 					width * 21 / 40 + height * 9 / 20 + width,
 					height
-				), DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+				), DT_SINGLELINE | DT_CENTER | DT_TOP);
+				memdc.SelectObject(oldfont);
+				font.DeleteObject();
 			}
-			memdc.SelectObject(oldfont);
-			font.DeleteObject();
 		}
 	}
 
@@ -361,9 +430,9 @@ int CsudokuView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	// 메뉴 - NEWGAME
 	{
 		Button *button_newgame[5] = { nullptr, };
-		button_newgame[0] = new AnimationButton(menu_rect[0][0][0], menu_rect[0][0][1], [=]() { OnNewGameStart(EASY); }, CString("쉬움"), font_name, 0.5, menu_sp[0][0], 0.3, 0b11);
-		button_newgame[1] = new AnimationButton(menu_rect[1][0][0], menu_rect[1][0][1], [=]() { OnNewGameStart(MEDIUM); }, CString("보통"), font_name, 0.5, menu_sp[1][0], 0.35, 0b11);
-		button_newgame[2] = new AnimationButton(menu_rect[2][0][0], menu_rect[2][0][1], [=]() { OnNewGameStart(HARD); }, CString("어려움"), font_name, 0.5, menu_sp[2][0], 0.4, 0b11);
+		button_newgame[0] = new AnimationButton(menu_rect[0][0][0], menu_rect[0][0][1], [=]() { OnDifficultyClicked(EASY); }, CString("쉬움"), font_name, 0.5, menu_sp[0][0], 0.3, 0b11);
+		button_newgame[1] = new AnimationButton(menu_rect[1][0][0], menu_rect[1][0][1], [=]() { OnDifficultyClicked(MEDIUM); }, CString("보통"), font_name, 0.5, menu_sp[1][0], 0.35, 0b11);
+		button_newgame[2] = new AnimationButton(menu_rect[2][0][0], menu_rect[2][0][1], [=]() { OnDifficultyClicked(HARD); }, CString("어려움"), font_name, 0.5, menu_sp[2][0], 0.4, 0b11);
 		button_newgame[3] = new AnimationButton(menu_rect[3][0][0], menu_rect[3][0][1], [=]() { OnUserClicked(); }, CString("사용자 정의"), font_name, 0.5, menu_sp[3][0], 0.45, 0b11);
 		button_newgame[4] = new AnimationButton(menu_rect[4][0][0], menu_rect[4][0][1], [=]() { OnBackNewGameClicked(); }, CString("뒤로"), font_name, 0.5, menu_sp[4][0], 0.5, 0b11);
 		group_newgame = new ButtonGroup(5, button_newgame);
@@ -372,15 +441,21 @@ int CsudokuView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	// 메뉴 - SETTINGS
 	{
 		Button *button_settings[13] = { nullptr, };
+		
+		// 메뉴 - SETTINGS - 항목
 		button_settings[0] = new AnimationButton(menu_rect[0][0][0], menu_rect[0][0][1], [=]() {}, CString("음량"), font_name, 0.5, menu_sp[0][0], 0.3, 0b00);
 		button_settings[1] = new AnimationButton(menu_rect[1][0][0], menu_rect[1][0][1], [=]() {}, CString("화면 크기"), font_name, 0.5, menu_sp[1][0], 0.35, 0b00);
 		button_settings[2] = new AnimationButton(menu_rect[2][0][0], menu_rect[2][0][1], [=]() {}, CString("언어"), font_name, 0.5, menu_sp[2][0], 0.4, 0b00);
+		
+		// 메뉴 - SETTINGS - 뒤로
 		button_settings[3] = new AnimationButton(menu_rect[3][0][0], menu_rect[3][0][1], [=]() { OnBackSettingsClicked(); }, CString("뒤로"), font_name, 0.5, menu_sp[3][0], 0.45, 0b11);
-
+		
+		// 메뉴 - SETTINGS - 설정값
 		button_settings[4] = new AnimationButton(menu_rect[0][1][0], menu_rect[0][1][1] , []() {}, CString(""), font_name, 0.5, menu_sp[0][1], 0.3, 0b00);
 		button_settings[5] = new AnimationButton(menu_rect[1][1][0], menu_rect[1][1][1], []() {}, CString(""), font_name, 0.5, menu_sp[1][1], 0.35, 0b00);
 		button_settings[6] = new AnimationButton(menu_rect[2][1][0], menu_rect[2][1][1], []() {}, CString(""), font_name, 0.5, menu_sp[2][1], 0.4, 0b00);
 
+		// 메뉴 - SETTINGS - 설정값 조정
 		std::function<void(int)> cb[3] = {
 			[=](int inc) { OnSoundVolumeClicked(inc); },
 			[=](int inc) { OnScreenSizeClicked(inc); },
@@ -414,16 +489,65 @@ int CsudokuView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 					width * 21 / 40 + height * 9 / 20 + height * (2 * (i % 3) - 3) / 18 + 3,
 					height * (3 + i / 3) / 9 + 3
 				);
-				};
+			};
 			Corner br = [=](int width, int height) {
 				return CPoint(
 					width * 21 / 40 + height * 9 / 20 + height * (2 * (i % 3) - 1) / 18 - 3,
 					height * (4 + i / 3) / 9 - 3
 				);
-				};
-			button_number[i] = new EdgeButton(tl, br, [=]() { OnNumberKeyClicked(i + 1); }, a, font_name, 0.5, 3, 0.1);
+			};
+			button_number[i] = new EdgeButton(tl, br, [=]() { OnNumberKeyClicked(i + 1); }, a, font_name, 0.5, 1, 0.1);
 		}
 		group_numberkey = new ButtonGroup(9, button_number);
+	}
+
+	// 게임 - 일시정지
+	{
+		Corner tl = [=](int width, int height) {
+			return CPoint(
+				width * 21 / 40 + height * 9 / 20 + height / 9,
+				height / 9
+			);
+		};
+		Corner br = [=](int width, int height) {
+			return CPoint(
+				width * 21 / 40 + height * 9 / 20 + height * 2 / 9,
+				height * 2 / 9
+			);
+		};
+		Button *button_pause = new EdgeButton(tl, br, []() {}, CString("∥"), CString("consolas"), 0.5, 3, 0.1);
+		group_pause = new ButtonGroup(1, &button_pause);
+	}
+
+	// 게임 - 하단 메뉴
+	{
+		Button *button_toolbar[3] = { nullptr, };
+		Callback cb[3] = {
+			[=]() { OnEraseClicked(); },
+			[=]() { OnMemoClicked(); },
+			[=]() {}
+		};
+		CString string[3] = {
+			CString("지우기"),
+			CString("메모"),
+			CString("힌트")
+		};
+		for (int i = 0; i < 3; i++) {
+			Corner tl = [=](int width, int height) {
+				return CPoint(
+					width * 21 / 40 + height * 9 / 20 + height * (i * 3 - 4) / 18,
+					height * 7 / 9
+				);
+			};
+			Corner br = [=](int width, int height) {
+				return CPoint(
+					width * 21 / 40 + height * 9 / 20 + height * (i * 3 - 2) / 18,
+					height * 8 / 9
+				);
+			};
+			button_toolbar[i] = new EdgeButton(tl, br, cb[i], string[i], font_name, 0.3, 3, 0.1);
+		}
+		group_toolbar = new ButtonGroup(3, button_toolbar);
 	}
 
 	// 게임 - 격자판
@@ -435,13 +559,13 @@ int CsudokuView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 					width / 20 + height * (i % 9) / 10,
 					height * (2 * (i / 9) + 1) / 20
 				);
-				};
+			};
 			Corner br = [=](int width, int height) {
 				return CPoint(
 					width / 20 + height * (i % 9 + 1) / 10,
 					height * (2 * (i / 9) + 3) / 20
 				);
-				};
+			};
 			button_sudoku[i] = new TextButton(tl, br, [=]() { OnSudokuMapClicked(i); }, CString(""), CString("굴림"), 0.7);
 		}
 		group_sudoku = new ButtonGroup(81, button_sudoku);
@@ -454,16 +578,16 @@ int CsudokuView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 				width * 21 / 40 + height * 9 / 20 - height / 6,
 				height * 7 / 9
 			);
-			};
+		};
 		Corner br = [](int width, int height) {
 			return CPoint(
 				width * 21 / 40 + height * 9 / 20 + height / 6,
 				height * 7 / 9 + height / 10
 			);
-			};
+		};
 		Corner sp = [](int width, int height) {
 			return CPoint(width * 3 / 2, height * 7 / 9);
-			};
+		};
 		Button *button_done = new AnimationButton(tl, br, [=]() { OnDoneClicked(); }, CString("완료"), font_name, 0.5, sp, 0.4, 0b11);
 		group_done = new ButtonGroup(1, &button_done);
 	}
@@ -479,13 +603,23 @@ void CsudokuView::OnNewgameClicked() {
 	m_menu = NEW_GAME;
 }
 
-void CsudokuView::OnNewGameStart(DIFF diff) {
+void CsudokuView::OnDifficultyClicked(DIFF diff) {
+	m_diff = diff;
+	m_bMemo = false;
 	m_clockRequested = clock();
 
 	int blank = 0;
-	if (diff == EASY) blank = 20;
-	else if (diff == MEDIUM) blank = 40;
-	else if (diff == HARD) blank = 100;
+	switch (diff) {
+	case EASY:
+		blank = 20;
+		break;
+	case MEDIUM:
+		blank = 40;
+		break;
+	case HARD:
+		blank = 100;
+		break;
+	}
 	
 	std::thread([&]() {
 		m_mutex.lock();
@@ -591,9 +725,27 @@ void CsudokuView::OnBackSettingsClicked() {
 	m_menu = START;
 }
 
-void CsudokuView::OnNumberKeyClicked(int num) {	
-	m_map->SetValue(num, m_nSelRow, m_nSelCol);
+void CsudokuView::OnNumberKeyClicked(int num) {
+	if (m_bMemo)
+		m_map->ToggleMemo(num, m_nSelRow, m_nSelCol);
+	else
+		m_map->SetValue(num, m_nSelRow, m_nSelCol);
 }
+
+void CsudokuView::OnEraseClicked()
+{
+	m_map->SetValue(0, m_nSelRow, m_nSelCol);
+}
+
+void CsudokuView::OnMemoClicked()
+{
+	m_bMemo = !m_bMemo;
+	if (m_bMemo)
+		((TextButton *)(group_toolbar->group[1]))->ChangeTextColor(RGB(255, 0, 0));
+	else
+		((TextButton *)(group_toolbar->group[1]))->ChangeTextColor(RGB(0, 0, 0));
+}
+
 
 void CsudokuView::OnSudokuMapClicked(int i) {
 	m_nSelRow = i / 9;
@@ -630,8 +782,7 @@ void CsudokuView::OnTimer(UINT_PTR nIDEvent)
 	Button::Timer(nIDEvent);
 
 	if (nIDEvent == 0) {
-		Invalidate(TRUE);
-		
+
 		if (m_mode == LOADING) {
 			if (m_mutex.try_lock()) {
 				m_mutex.unlock();
@@ -640,6 +791,8 @@ void CsudokuView::OnTimer(UINT_PTR nIDEvent)
 				m_ingame = READY;
 				m_mode = GAME;
 				group_numberkey->Enable();
+				group_pause->Enable();
+				group_toolbar->Enable();
 			}
 		}
 		else if (m_mode == GAME) {
@@ -652,7 +805,7 @@ void CsudokuView::OnTimer(UINT_PTR nIDEvent)
 				}
 			}
 			if (m_ingame == ON) {
-				// 숫자와 버튼 간의 데이터 교환
+				// Button과 SudokuMap 간의 데이터 교환
 				for (int i = 0; i < 9; i++)
 					for (int j = 0; j < 9; j++)
 						if (m_map->GetValue(i, j) > 0) {
@@ -670,15 +823,19 @@ void CsudokuView::OnTimer(UINT_PTR nIDEvent)
 						}
 						else
 							((TextButton *)group_sudoku->group[(size_t)i * 9 + j])->ChangeText(CString(""));
-				// 완료 여부
+				// 스도쿠 완료
 				if (m_map->Done()) {
 					group_numberkey->Disable();
+					group_pause->Disable();
+					group_toolbar->Disable();
 					m_clockEnded = clock();
 					m_ingame = DONE;
 					group_done->Enable();
 				}
 			}
 		}
+
+		Invalidate(TRUE);
 	}
 
 	CView::OnTimer(nIDEvent);
@@ -712,7 +869,7 @@ void CsudokuView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 			if ('1' <= nChar && nChar <= '9')
 				OnNumberKeyClicked(nChar - '0');
 			else if (nChar == VK_DELETE || nChar == VK_BACK || nChar == '0')
-				OnNumberKeyClicked(0);
+				OnEraseClicked();
 		}
 		if (m_ingame == ON || m_ingame == DONE) {
 			if (nChar == VK_UP)

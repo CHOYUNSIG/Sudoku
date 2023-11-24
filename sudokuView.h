@@ -78,6 +78,8 @@ public:
 
 	SudokuMap *m_map = nullptr;
 	std::mutex m_mutex;
+	DIFF m_diff;
+	bool m_bMemo;
 	int m_nSelRow;
 	int m_nSelCol;
 	clock_t m_clockRequested;
@@ -89,6 +91,8 @@ public:
 	ButtonGroup *group_newgame;
 	ButtonGroup *group_settings;
 	ButtonGroup *group_numberkey;
+	ButtonGroup *group_pause;
+	ButtonGroup *group_toolbar;
 	ButtonGroup *group_sudoku;
 	ButtonGroup *group_done;
 
@@ -96,7 +100,7 @@ public:
 	void OnContinueClicked();
 	void OnSettingsClicked();
 	void OnExitClicked();
-	void OnNewGameStart(DIFF diff);
+	void OnDifficultyClicked(DIFF diff);
 	void OnUserClicked();
 	void OnBackNewGameClicked();
 	void OnSoundVolumeClicked(int inc);
@@ -104,6 +108,8 @@ public:
 	void OnLanguageClicked(int inc);
 	void OnBackSettingsClicked();
 	void OnNumberKeyClicked(int num);
+	void OnEraseClicked();
+	void OnMemoClicked();
 	void OnSudokuMapClicked(int index);
 	void OnDoneClicked();
 
