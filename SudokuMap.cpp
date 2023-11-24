@@ -190,9 +190,11 @@ inline static bool generate_unique(int map[9][9], int bit[9][9])
 
 SudokuMap::SudokuMap(int del)
 {
-	int bit[9][9] = { 0b111111111, };
-	for (int i = 0; i < 81; i++)
+	int bit[9][9] = { 0, };
+	for (int i = 0; i < 81; i++) {
 		m_lpMap[i / 9][i % 9] = 0;
+		bit[i / 9][i % 9] = 0b111111111;
+	}
 
 	generate_unique(m_lpMap, bit);
 
