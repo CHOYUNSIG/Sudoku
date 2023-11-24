@@ -10,7 +10,7 @@
 
 
 
-inline bool contradict(int map[9][9], int row, int col)
+inline static bool contradict(int map[9][9], int row, int col)
 {
 	if (map[row][col] == 0)
 		return false;
@@ -22,7 +22,7 @@ inline bool contradict(int map[9][9], int row, int col)
 	return false;
 }
 
-inline bool generate_all(int map[9][9], int pos)
+inline static bool generate_all(int map[9][9], int pos)
 {
 	if (pos == 81) return true;
 	int now = rand() % 9 + 1;
@@ -41,7 +41,7 @@ inline bool generate_all(int map[9][9], int pos)
 	return false;
 }
 
-inline int bitsum(int n)
+inline static int bitsum(int n)
 {
 	int result = 0;
 	for (int i = 0; i < 9; i++)
@@ -50,18 +50,19 @@ inline int bitsum(int n)
 	return result;
 }
 
-inline int bit2num(int bit)
+inline static int bit2num(int bit)
 {
 	for (int start = rand() % 9, i = start, now = start; now < start + 9; now++, i = now % 9)
 		if (bit & (1 << i))
 			return i + 1;
+	return 0;
 }
 
-inline bool subset(int bit[9][9])
+inline static bool subset(int bit[9][9])
 {
 	bool changed = false;
 	for (int pos = 0; pos < 9; pos++) {
-		int cord[3][9][2];
+		int cord[3][9][2] = { 0, };
 		for (int i = 0; i < 9; i++) {
 			cord[0][i][0] = pos;
 			cord[0][i][1] = i;
@@ -98,12 +99,12 @@ inline bool subset(int bit[9][9])
 	return changed;
 }
 
-inline bool intersection(int bit[9][9])
+inline static bool intersection(int bit[9][9])
 {
 	bool changed = false;
 	for (int pos = 0; pos < 9; pos++) {
-		int core[6][3][2];
-		int group[6][2][6][2];
+		int core[6][3][2] = { 0, };
+		int group[6][2][6][2] = { 0, };
 		for (int r = 0; r < 3; r++) {
 			for (int p = 0; p < 3; p++) {
 				core[r][p][0] = pos / 3 * 3 + r;
@@ -150,7 +151,7 @@ inline bool intersection(int bit[9][9])
 	return changed;
 }
 
-inline bool generate(int map[9][9], int bit[9][9])
+inline static bool generate_unique(int map[9][9], int bit[9][9])
 {
 	int row = -1, col = -1;
 	for (int start = rand() % 81, pos = start, now = start; now < start + 81; now++, pos = now % 81) {
@@ -166,7 +167,7 @@ inline bool generate(int map[9][9], int bit[9][9])
 	if (row == -1 && col == -1)
 		return true;
 
-	int pre_bit[9][9];
+	int pre_bit[9][9] = { 0, };
 	for (int i = 0; i < 81; i++)
 		pre_bit[i / 9][i % 9] = bit[i / 9][i % 9];
 
@@ -176,7 +177,7 @@ inline bool generate(int map[9][9], int bit[9][9])
 			bit[row][col] = (1 << i);
 			while (subset(bit) || intersection(bit))
 				continue;
-			if (generate(map, bit))
+			if (generate_unique(map, bit))
 				return true;
 			map[row][col] = 0;
 			for (int i = 0; i < 81; i++)
@@ -189,13 +190,11 @@ inline bool generate(int map[9][9], int bit[9][9])
 
 SudokuMap::SudokuMap(int del)
 {
-	int bit[9][9];
-	for (int i = 0; i < 81; i++) {
+	int bit[9][9] = { 0b111111111, };
+	for (int i = 0; i < 81; i++)
 		m_lpMap[i / 9][i % 9] = 0;
-		bit[i / 9][i % 9] = 0b111111111;
-	}
 
-	generate(m_lpMap, bit);
+	generate_unique(m_lpMap, bit);
 
 	for (int i = 0; i < 81; i++)
 		if (m_lpMap[i / 9][i % 9] == 0)
@@ -223,12 +222,12 @@ SudokuMap::SudokuMap(int pre_map[9][9])
 	}
 }
 
-int SudokuMap::GetValue(int row, int col)
+int SudokuMap::GetValue(int row, int col) const
 {
 	return m_lpMap[row][col] % 10;
 }
 
-bool SudokuMap::Editable(int row, int col)
+bool SudokuMap::Editable(int row, int col) const
 {
 	return m_lpMap[row][col] < 10;
 }
@@ -244,7 +243,7 @@ void SudokuMap::SetValue(int value, int row, int col)
 	}
 }
 
-bool SudokuMap::Contradict()
+bool SudokuMap::Contradict() const
 {
 	for (int i = 0; i < 9; i++) {
 		int row = 0;
@@ -266,12 +265,19 @@ bool SudokuMap::Contradict()
 	return false;
 }
 
-bool SudokuMap::Contradict(int row, int col)
+bool SudokuMap::Contradict(int row, int col) const
 {
-	return contradict(m_lpMap, row, col);
+	if (m_lpMap[row][col] == 0)
+		return false;
+	for (int i = 0; i < 9; i++)
+		if ((i != row && m_lpMap[i][col] % 10 == m_lpMap[row][col] % 10) ||
+			(i != col && m_lpMap[row][i] % 10 == m_lpMap[row][col] % 10) ||
+			(row / 3 * 3 + i / 3 != row && col != col / 3 * 3 + i % 3 && m_lpMap[row / 3 * 3 + i / 3][col / 3 * 3 + i % 3] % 10 == m_lpMap[row][col] % 10))
+			return true;
+	return false;
 }
 
-bool SudokuMap::Done()
+bool SudokuMap::Done() const
 {
 	if (m_nBlank == 0 && !Contradict())
 		return true;

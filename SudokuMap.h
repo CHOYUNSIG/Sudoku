@@ -11,10 +11,10 @@ private:
 public:
 	SudokuMap(int del);
 	SudokuMap(int pre_map[9][9]);
-	int GetValue(int row, int col);
-	bool Editable(int row, int col);
+	int GetValue(int row, int col) const;
+	bool Editable(int row, int col) const;
 	void SetValue(int value, int row, int col);
-	bool Contradict();
-	bool Contradict(int row, int col);
-	bool Done();
+	bool Contradict() const;
+	bool Contradict(int row, int col) const;
+	bool Done() const;
 };

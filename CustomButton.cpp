@@ -105,7 +105,7 @@ bool ButtonGroup::IsDisabled()
 	return true;
 }
 
-size_t ButtonGroup::Count()
+size_t ButtonGroup::Count() const
 {
 	return group.size();
 }
@@ -250,7 +250,7 @@ CPoint AnimationButton::GetAnimatedPoint(bool forward)
 	}
 }
 
-bool AnimationButton::Animating()
+bool AnimationButton::Animating() const
 {
 	return (clock() - m_clockAnimationInit) < m_dAnimationTime * CLOCKS_PER_SEC;
 }

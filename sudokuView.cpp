@@ -66,17 +66,7 @@ BOOL CsudokuView::PreCreateWindow(CREATESTRUCT& cs)
 }
 
 void CsudokuView::AfterCreateWindow()
-{
-	CRect fullrect, clientrect;
-	AfxGetMainWnd()->GetWindowRect(&fullrect);
-	GetWindowRect(&clientrect);
-	AfxGetMainWnd()->MoveWindow(CRect(
-		fullrect.TopLeft().x,
-		fullrect.TopLeft().y,
-		fullrect.TopLeft().x + SCREEN_RATIO[m_nScreenRatio][0] + fullrect.Width() - clientrect.Width(),
-		fullrect.TopLeft().y + SCREEN_RATIO[m_nScreenRatio][1] + fullrect.Height() - clientrect.Height()
-	));
-	
+{	
 	OnSoundVolumeClicked(0);
 	OnScreenSizeClicked(0);
 	OnLanguageClicked(0);
@@ -356,7 +346,7 @@ int CsudokuView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	// 메뉴 - INIT
 	{
-		Button *button_init[4];
+		Button *button_init[4] = { nullptr, };
 		button_init[0] = new AnimationButton(menu_rect[0][0][0], menu_rect[0][0][1], [=]() { OnNewgameClicked(); }, CString("새 게임"), font_name, 0.5, menu_sp[0][0], 0.3, 0b11);
 		button_init[1] = new AnimationButton(menu_rect[1][0][0], menu_rect[1][0][1], [=]() { OnContinueClicked(); }, CString("이어하기"), font_name, 0.5, menu_sp[1][0], 0.35, 0b11);
 		button_init[2] = new AnimationButton(menu_rect[2][0][0], menu_rect[2][0][1], [=]() { OnSettingsClicked(); }, CString("설정"), font_name, 0.5, menu_sp[2][0], 0.4, 0b11);
@@ -366,7 +356,7 @@ int CsudokuView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	// 메뉴 - NEWGAME
 	{
-		Button *button_newgame[5];
+		Button *button_newgame[5] = { nullptr, };
 		button_newgame[0] = new AnimationButton(menu_rect[0][0][0], menu_rect[0][0][1], [=]() { OnNewGameStart(EASY); }, CString("쉬움"), font_name, 0.5, menu_sp[0][0], 0.3, 0b11);
 		button_newgame[1] = new AnimationButton(menu_rect[1][0][0], menu_rect[1][0][1], [=]() { OnNewGameStart(MEDIUM); }, CString("보통"), font_name, 0.5, menu_sp[1][0], 0.35, 0b11);
 		button_newgame[2] = new AnimationButton(menu_rect[2][0][0], menu_rect[2][0][1], [=]() { OnNewGameStart(HARD); }, CString("어려움"), font_name, 0.5, menu_sp[2][0], 0.4, 0b11);
@@ -377,7 +367,7 @@ int CsudokuView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	// 메뉴 - SETTINGS
 	{
-		Button *button_settings[13];
+		Button *button_settings[13] = { nullptr, };
 		button_settings[0] = new AnimationButton(menu_rect[0][0][0], menu_rect[0][0][1], [=]() {}, CString("음량"), font_name, 0.5, menu_sp[0][0], 0.3, 0b00);
 		button_settings[1] = new AnimationButton(menu_rect[1][0][0], menu_rect[1][0][1], [=]() {}, CString("화면 크기"), font_name, 0.5, menu_sp[1][0], 0.35, 0b00);
 		button_settings[2] = new AnimationButton(menu_rect[2][0][0], menu_rect[2][0][1], [=]() {}, CString("언어"), font_name, 0.5, menu_sp[2][0], 0.4, 0b00);
@@ -411,7 +401,7 @@ int CsudokuView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	// 게임 - Number Key
 	{
-		Button *button_number[9];
+		Button *button_number[9] = { nullptr, };
 		for (int i = 0; i < 9; i++) {
 			CString a;
 			a.Format(_T("%d"), i + 1);
@@ -434,7 +424,7 @@ int CsudokuView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	// 게임 - 격자판
 	{
-		Button *button_sudoku[81];
+		Button *button_sudoku[81] = { nullptr, };
 		for (int i = 0; i < 9 * 9; i++) {
 			Corner tl = [=](int width, int height) {
 				return CPoint(
@@ -587,7 +577,7 @@ void CsudokuView::OnBackSettingsClicked() {
 	CString st = sound + screen + lang;
 	char buffer[1024] = { 0, };
 	for (int i = 0; i < st.GetLength(); i++)
-		buffer[i] = st[i];
+		buffer[i] = (char)st[i];
 
 	CStdioFile preset;
 	preset.Open(_T("settings.dat"), CFile::modeWrite | CFile::typeText);
@@ -653,7 +643,7 @@ void CsudokuView::OnTimer(UINT_PTR nIDEvent)
 						if (m_map->GetValue(i, j) > 0) {
 							CString a;
 							a.Format(_T("%d"), m_map->GetValue(i, j));
-							((TextButton *)group_sudoku->group[i * 9 + j])->ChangeText(a);
+							((TextButton *)group_sudoku->group[(size_t)i * 9 + j])->ChangeText(a);
 							COLORREF color;
 							if (m_map->Contradict(i, j))
 								color = RGB(255, 0, 0);
@@ -661,10 +651,10 @@ void CsudokuView::OnTimer(UINT_PTR nIDEvent)
 								color = RGB(100, 100, 255);
 							else
 								color = RGB(50, 50, 50);
-							((TextButton *)group_sudoku->group[i * 9 + j])->ChangeTextColor(color);
+							((TextButton *)group_sudoku->group[(size_t)i * 9 + j])->ChangeTextColor(color);
 						}
 						else
-							((TextButton *)group_sudoku->group[i * 9 + j])->ChangeText(CString(""));
+							((TextButton *)group_sudoku->group[(size_t)i * 9 + j])->ChangeText(CString(""));
 				// 완료 여부
 				if (m_map->Done()) {
 					group_numberkey->Disable();

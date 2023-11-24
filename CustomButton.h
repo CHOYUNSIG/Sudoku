@@ -109,7 +109,7 @@ struct ButtonGroup {
 	void Disable();
 	void ThrowEvent(int nIDEvent);
 	bool IsDisabled();
-	size_t Count();
+	size_t Count() const;
 };
 
 
@@ -187,7 +187,7 @@ private:
 	void OnGroupEvent(int nIDEvent);
 
 	CPoint GetAnimatedPoint(bool forward);
-	bool Animating();
+	bool Animating() const;
 
 public:
 	AnimationButton(Corner tl, Corner br, Callback callback, CString &text, CString &font, double font_rate, Corner &start, double sec, int option);
