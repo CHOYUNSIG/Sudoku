@@ -212,6 +212,7 @@
     <ResourceCompile Include="sudoku.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="ranking.dat" />
     <None Include="res\sudoku.rc2" />
     <None Include="settings.dat" />
   </ItemGroup>
