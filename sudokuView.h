@@ -6,15 +6,15 @@
 
 #include "CustomButton.h"
 #include "SudokuMap.h"
-
+#include <vector>
 #include <mutex>
 
-const int FPS = 60;
+constexpr int FPS = 60;
 
-const int SCREEN_RATIO_COUNT = 5;
-const int SCREEN_RATIO[5][2] = { {864, 486}, {1024, 576}, {1280, 720}, {1366, 768}, {1600, 900} };
+constexpr int SCREEN_RATIO_COUNT = 5;
+constexpr int SCREEN_RATIO[SCREEN_RATIO_COUNT][2] = { {864, 486}, {1024, 576}, {1280, 720}, {1366, 768}, {1600, 900} };
 
-const int LANG_COUNT = 2;
+constexpr int LANG_COUNT = 2;
 enum LANG {ENG, KOR};
 
 enum MODE {INIT, LOADING, GAME};
@@ -69,8 +69,8 @@ public:
 	int m_nSoundVolume = 50;
 	int m_nScreenRatio = 1;
 	int m_nLanguage = 0;
-	char font_path[256] = { 0, };
 	CString font_name;
+	std::vector<double> *ranking[3] = { nullptr, };
 
 	MODE m_mode = INIT;
 	MENU m_menu = START;
