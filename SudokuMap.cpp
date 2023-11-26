@@ -213,6 +213,11 @@ inline static bool generate_unique(int map[9][9], int bit[9][9])
 	return false;
 }
 
+SudokuMap::SudokuMap()
+{
+	m_nBlank = 81;
+}
+
 SudokuMap::SudokuMap(int del)
 {
 	srand((unsigned int)time(nullptr));

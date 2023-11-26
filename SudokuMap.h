@@ -11,6 +11,7 @@ private:
 	int m_nBlank = 0;
 
 public:
+	SudokuMap();
 	SudokuMap(int del);
 	SudokuMap(int pre_map[9][9], int pre_memo[9][9]);
 	int GetValue(int row, int col) const;
