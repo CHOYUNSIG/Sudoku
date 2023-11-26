@@ -44,6 +44,7 @@ BEGIN_MESSAGE_MAP(CsudokuView, CView)
 	ON_WM_KEYDOWN()
 	ON_WM_ERASEBKGND()
 	ON_WM_SIZE()
+	ON_WM_KEYUP()
 END_MESSAGE_MAP()
 
 
@@ -95,8 +96,10 @@ void CsudokuView::OnDraw(CDC *pDC)
 	
 	CRect ClientRect;
 	GetClientRect(ClientRect);
+
 	int width = ClientRect.Width();
 	int height = ClientRect.Height();
+	int dpi = GetDpiForWindow(GetSafeHwnd());
 	
 	CBitmap bitmap;
 	bitmap.CreateCompatibleBitmap(pDC, width, height);
@@ -137,7 +140,7 @@ void CsudokuView::OnDraw(CDC *pDC)
 	if (m_mode == INIT) {
 		// 제목
 		{
-			font.CreatePointFont((int)(height * 1.5 * 72 / GetDpiForWindow(GetSafeHwnd())), font_name);
+			font.CreatePointFont(height * 108 / dpi, font_name);
 			oldfont = memdc.SelectObject(&font);
 			memdc.DrawText(_T(" Sudoku™"), CRect(0, height / 10, width, height * 3 / 10), DT_SINGLELINE | DT_CENTER | DT_VCENTER);
 			memdc.SelectObject(oldfont);
@@ -148,7 +151,7 @@ void CsudokuView::OnDraw(CDC *pDC)
 			// 랭킹판 - 등수
 			CString rank[5] = { CString("1st"), CString("2nd"), CString("3rd"), CString("4th"), CString("5th") };
 			size_t max_ranked = max(max(ranking[0]->size(), ranking[1]->size()), ranking[2]->size());
-			font.CreatePointFont((int)(height * 32 / GetDpiForWindow(GetSafeHwnd())), font_name);
+			font.CreatePointFont((int)(height * 32 / dpi), font_name);
 			oldfont = memdc.SelectObject(&font);
 			for (int i = 0; i < max_ranked; i++) {
 				memdc.DrawText(rank[i], CRect(
@@ -165,7 +168,7 @@ void CsudokuView::OnDraw(CDC *pDC)
 			for (int d = 0; d < 3; d++) {
 				if (ranking[d]->empty())
 					continue;
-				font.CreatePointFont((int)(height * 32 / GetDpiForWindow(GetSafeHwnd())), font_name);
+				font.CreatePointFont(height * 32 / dpi, font_name);
 				oldfont = memdc.SelectObject(&font);
 				memdc.DrawText(diff[d], CRect(
 					width * (6 + d) / 10,
@@ -176,7 +179,7 @@ void CsudokuView::OnDraw(CDC *pDC)
 				memdc.SelectObject(oldfont);
 				font.DeleteObject();
 				for (int i = 0; i < ranking[d]->size(); i++) {
-					font.CreatePointFont((int)(height * 24 / GetDpiForWindow(GetSafeHwnd())), _T("consolas"));
+					font.CreatePointFont(height * 24 / dpi, _T("consolas"));
 					oldfont = memdc.SelectObject(&font);
 					string.Format(_T("%.2fs"), ranking[d]->at(i));
 					memdc.DrawText(string, CRect(
@@ -193,7 +196,7 @@ void CsudokuView::OnDraw(CDC *pDC)
 	}
 	else if (m_mode == LOADING) {
 		// 로딩
-		font.CreatePointFont((int)(height * 72 / GetDpiForWindow(GetSafeHwnd())), font_name);
+		font.CreatePointFont(height * 72 / dpi, font_name);
 		oldfont = memdc.SelectObject(&font);
 		string = CString("로딩중");
 		for (int i = 0; i < (clock() - m_clockRequested) * 2 / CLOCKS_PER_SEC % 4; i++)
@@ -205,12 +208,12 @@ void CsudokuView::OnDraw(CDC *pDC)
 	else if (m_mode == GAME) {
 		// 카운트다운
 		if (m_ingame == READY) {
-			font.CreatePointFont(height * 72 / GetDpiForWindow(GetSafeHwnd()), font_name);
+			font.CreatePointFont(height * 72 / dpi, font_name);
 			oldfont = memdc.SelectObject(&font);
 			memdc.DrawText(_T("준비!"), CRect(width / 20, height / 20, width / 20 + height * 9 / 10, height / 2), DT_SINGLELINE | DT_CENTER | DT_BOTTOM);
 			memdc.SelectObject(oldfont);
 			font.DeleteObject();
-			font.CreatePointFont(height * 72 / GetDpiForWindow(GetSafeHwnd()), _T("consolas"));
+			font.CreatePointFont(height * 72 / dpi, _T("consolas"));
 			oldfont = memdc.SelectObject(&font);
 			string.Format(_T("%.2fs"), 3 - (double)(clock() - m_clockGenerated) / CLOCKS_PER_SEC);
 			memdc.DrawText(string, CRect(width / 20, height / 2, width / 20 + height * 9 / 10, height * 19 / 20), DT_SINGLELINE | DT_CENTER | DT_TOP);
@@ -236,7 +239,7 @@ void CsudokuView::OnDraw(CDC *pDC)
 		// 게임판
 		if (m_ingame == ON || m_ingame == DONE) {
 			// 게임판 - 메모 숫자
-			font.CreatePointFont(height * 24 / GetDpiForWindow(GetSafeHwnd()), _T("굴림"));
+			font.CreatePointFont(height * 24 / dpi, _T("굴림"));
 			oldfont = memdc.SelectObject(&font);
 			for (int i = 0; i < 9; i++)
 				for (int j = 0; j < 9; j++) {
@@ -304,7 +307,7 @@ void CsudokuView::OnDraw(CDC *pDC)
 				time = GetTime();
 			else if (m_ingame == PAUSE)
 				time = m_dPausedTime;
-			font.CreatePointFont(height * 36 / GetDpiForWindow(GetSafeHwnd()), _T("consolas"));
+			font.CreatePointFont(height * 36 / dpi, _T("consolas"));
 			oldfont = memdc.SelectObject(&font);
 			string.Format(_T("%.2fs"), time);
 			memdc.DrawText(string, CRect(
@@ -319,7 +322,7 @@ void CsudokuView::OnDraw(CDC *pDC)
 		// 게임 결과
 		if (m_ingame == DONE) {
 			// 게임 결과 - 난이도
-			font.CreatePointFont(height * 36 / GetDpiForWindow(GetSafeHwnd()), font_name);
+			font.CreatePointFont(height * 36 / dpi, font_name);
 			oldfont = memdc.SelectObject(&font);
 			switch (m_diff) {
 			case EASY:
@@ -344,7 +347,7 @@ void CsudokuView::OnDraw(CDC *pDC)
 			memdc.SelectObject(oldfont);
 			font.DeleteObject();
 			// 게임 결과 - 완료 시간
-			font.CreatePointFont(height * 72 / GetDpiForWindow(GetSafeHwnd()), _T("consolas"));
+			font.CreatePointFont(height * 72 / dpi, _T("consolas"));
 			oldfont = memdc.SelectObject(&font);
 			string.Format(_T("%.2fs"), m_dFinishedTime);
 			memdc.DrawText(string, CRect(
@@ -569,7 +572,6 @@ int CsudokuView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 					[=](int inc) { OnScreenSizeClicked(inc); },
 					[=](int inc) { OnLanguageClicked(inc); }
 				};
-
 				for (int i = 0; i < 3; i++) {
 					button_settings[7 + i * 2] = new AnimationButton(menu_rect[i][1][0],
 						[=](int width, int height) {
@@ -769,7 +771,6 @@ void CsudokuView::OnDifficultyClicked(DIFF diff) {
 
 void CsudokuView::OnContinueClicked() {
 	CFileDialog dlg(TRUE, NULL, NULL, 0, _T("Sudoku Save File (*.sdk)|*.sdk|"), this);
-	m_menu = CONTINUE;
 	if (dlg.DoModal() == IDOK) {
 		CStdioFile savefile;
 		savefile.Open(dlg.GetPathName(), CFile::modeRead | CFile::typeText);
@@ -804,10 +805,8 @@ void CsudokuView::OnContinueClicked() {
 		m_map = new SudokuMap(map, bit);
 		m_mode = LOADING;
 	}
-	else {
+	else
 		group_init->Enable();
-		m_menu = START;
-	}
 }
 
 double CsudokuView::GetTime() const
@@ -817,16 +816,16 @@ double CsudokuView::GetTime() const
 
 void CsudokuView::OnSettingsClicked() {
 	
-	group_settings->Enable();
 	m_menu = SETTINGS;
+	group_settings->Enable();
 }
 
 void CsudokuView::OnUserClicked() {
-	m_map = new SudokuMap;
-	m_diff = USER;
 	m_bMemo = false;
 	m_bEditMode = true;
+	m_map = new SudokuMap;
 	m_nSelRow = m_nSelCol = 4;
+	m_diff = USER;
 	m_ingame = ON;
 	m_mode = GAME;
 	group_sudoku->Enable();
@@ -904,8 +903,8 @@ void CsudokuView::OnBackSettingsClicked() {
 	preset.Write(buffer, sizeof(char) * st.GetLength());
 	preset.Close();
 
-	group_init->Enable();
 	m_menu = START;
+	group_init->Enable();
 }
 
 void CsudokuView::OnNumberKeyClicked(int num) {
@@ -965,10 +964,8 @@ void CsudokuView::OnSaveClicked()
 		}
 		a.Format(_T("diff: %d\n"), m_diff);
 		st += a;
-		if (m_bEditMode)
-			a.Format(_T("time: %.2f\n"), 0.0);
-		else
-			a.Format(_T("time: %.2f\n"), m_dPausedTime);
+		if (m_bEditMode) a.Format(_T("time: %.2f\n"), 0.0);
+		else a.Format(_T("time: %.2f\n"), m_dPausedTime);
 		st += a;
 
 		char buffer[2048] = { 0, };
@@ -1155,12 +1152,14 @@ void CsudokuView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	Button::Keyboard(nChar, nRepCnt, nFlags);
 
 	if (m_mode == GAME) {
+		// 셀에 숫자 입력
 		if (m_ingame == ON) {
 			if ('1' <= nChar && nChar <= '9')
 				OnNumberKeyClicked(nChar - '0');
 			else if (nChar == VK_DELETE || nChar == VK_BACK || nChar == '0')
 				OnEraseClicked();
 		}
+		// 선택된 셀 이동
 		if (m_ingame == ON || m_ingame == DONE) {
 			if (nChar == VK_UP)
 				m_nSelRow = max(0, m_nSelRow - 1);
@@ -1171,9 +1170,40 @@ void CsudokuView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 			else if (nChar == VK_RIGHT)
 				m_nSelCol = min(8, m_nSelCol + 1);
 		}
+		// 메모 기능 켜기
+		if (m_ingame == ON) {
+			if (nChar == VK_SHIFT) {
+				m_bMemo = true;
+				((TextButton *)(group_toolbar->group[1]))->ChangeTextColor(RGB(255, 0, 0));
+			}
+		}
+		// 일시정지
+		if (nChar == VK_ESCAPE) {
+			if (m_ingame == ON)
+				OnPauseClicked();
+			else if (m_ingame == PAUSE)
+				Button::Click(0, CPoint(SCREEN_RATIO[m_nScreenRatio][0] / 20 + SCREEN_RATIO[m_nScreenRatio][1] * 9 / 20, SCREEN_RATIO[m_nScreenRatio][1] * 4 / 10));
+		}
 	}
 
 	CView::OnKeyDown(nChar, nRepCnt, nFlags);
+}
+
+
+void CsudokuView::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+	if (m_mode == GAME) {
+		// 메모 기능 끄기
+		if (m_ingame == ON) {
+			if (nChar == VK_SHIFT) {
+				((TextButton *)(group_toolbar->group[1]))->ChangeTextColor(RGB(0, 0, 0));
+				m_bMemo = false;
+			}
+		}
+	}
+
+	CView::OnKeyUp(nChar, nRepCnt, nFlags);
 }
 
 
@@ -1191,4 +1221,3 @@ void CsudokuView::OnSize(UINT nType, int cx, int cy)
 	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
 	Button::Size(nType, cx, cy);
 }
-

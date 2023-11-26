@@ -18,7 +18,7 @@ constexpr int LANG_COUNT = 2;
 enum LANG {ENG, KOR};
 
 enum MODE {INIT, LOADING, GAME};
-enum MENU {START, NEW_GAME, CONTINUE, SETTINGS};
+enum MENU {START, NEW_GAME, SETTINGS};
 enum INGAME {READY, ON, PAUSE, SAVE, DONE};
 
 enum DIFF {EASY, MEDIUM, HARD, USER};
@@ -133,6 +133,7 @@ public:
 	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg BOOL OnEraseBkgnd(CDC *pDC);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
+	afx_msg void OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags);
 };
 
 #ifndef _DEBUG  // sudokuView.cpp의 디버그 버전
