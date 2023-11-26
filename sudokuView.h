@@ -65,11 +65,12 @@ protected:
 protected:
 	DECLARE_MESSAGE_MAP()
 public:
-	int width, height;
 	int m_nSoundVolume = 50;
 	int m_nScreenRatio = 1;
 	int m_nLanguage = 0;
+
 	CString font_name;
+	
 	std::vector<double> *ranking[3] = { nullptr, };
 
 	MODE m_mode = INIT;
@@ -79,13 +80,19 @@ public:
 	SudokuMap *m_map = nullptr;
 	std::mutex m_mutex;
 	DIFF m_diff;
+	bool m_bEditMode;
 	bool m_bMemo;
 	int m_nSelRow;
 	int m_nSelCol;
+	
+	double m_dAdditionalTime;
 	clock_t m_clockRequested;
 	clock_t m_clockGenerated;
 	clock_t m_clockStarted;
-	clock_t m_clockEnded;
+	clock_t m_clockPaused;
+	double m_dPausedTime;
+	double m_dFinishedTime;
+	double GetTime() const;
 
 	ButtonGroup *group_init;
 	ButtonGroup *group_newgame;
@@ -94,6 +101,7 @@ public:
 	ButtonGroup *group_pause;
 	ButtonGroup *group_toolbar;
 	ButtonGroup *group_sudoku;
+	ButtonGroup *group_onpause;
 	ButtonGroup *group_done;
 
 	void OnNewgameClicked();
@@ -110,6 +118,10 @@ public:
 	void OnNumberKeyClicked(int num);
 	void OnEraseClicked();
 	void OnMemoClicked();
+	void OnPauseClicked();
+	void OnKeepGoingClicked();
+	void OnSaveClicked();
+	void OnGiveUpClicked();
 	void OnSudokuMapClicked(int index);
 	void OnDoneClicked();
 
