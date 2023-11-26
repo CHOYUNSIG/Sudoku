@@ -15,8 +15,9 @@
 #include "sudokuView.h"
 #include "SudokuMap.h"
 #include "CustomButton.h"
+
 #include <algorithm>
-#include <string.h>
+#include <string>
 #include <functional>
 #include <direct.h>
 #include <thread>
@@ -987,9 +988,9 @@ void CsudokuView::OnGiveUpClicked()
 	group_sudoku->Disable();
 	m_mode = INIT;
 	m_menu = START;
+	group_init->Enable();
 	delete m_map;
 	m_map = nullptr;
-	group_init->Enable();
 }
 
 void CsudokuView::OnSudokuMapClicked(int i)
@@ -1035,7 +1036,6 @@ void CsudokuView::OnTimer(UINT_PTR nIDEvent)
 	Button::Timer(nIDEvent);
 
 	if (nIDEvent == 0) {
-
 		if (m_mode == LOADING) {
 			// 스도쿠 문제 로딩 완료
 			if (m_mutex.try_lock()) {
@@ -1051,7 +1051,7 @@ void CsudokuView::OnTimer(UINT_PTR nIDEvent)
 		}
 		else if (m_mode == GAME) {
 			if (m_ingame == READY) {
-				// 준비시간
+				// 준비 시간
 				if (clock() - m_clockGenerated >= 3 * CLOCKS_PER_SEC) {
 					m_ingame = ON;
 					m_clockStarted = clock();
