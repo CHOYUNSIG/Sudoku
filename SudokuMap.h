@@ -21,5 +21,6 @@ public:
 	bool ToggleMemo(int value, int row, int col);
 	bool Contradict() const;
 	bool Contradict(int row, int col) const;
+	int Hint();
 	bool Done() const;
 };

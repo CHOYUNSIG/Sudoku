@@ -330,6 +330,41 @@ bool SudokuMap::Contradict(int row, int col) const
 	return false;
 }
 
+int SudokuMap::Hint()
+{
+	if (Contradict())
+		return 1; // 모순이 있을 시
+
+	int bit[9][9] = { 0, };
+	for (int i = 0; i < 81; i++) {
+		if (GetValue(i / 9, i % 9) > 0)
+			bit[i / 9][i % 9] = (1 << (GetValue(i / 9, i % 9) - 1));
+		else
+			bit[i / 9][i % 9] = 0b111111111;
+	}
+	while (subset(bit) || intersection(bit))
+		continue;
+
+	int row = 0, col = 0;
+	for (RandomIterator iter_pos(81); iter_pos.Increase(); ) {
+		int pos = iter_pos.Get();
+		int a = bitsum(bit[pos / 9][pos % 9]);
+		if (GetValue(pos / 9, pos % 9) == 0) {
+			if (a == 1) {
+				row = pos / 9;
+				col = pos % 9;
+			}
+			else if (a == 0)
+				return 2; // 모순 발견 시
+			else
+				return 3; // 유일한 해답을 찾지 못할 시
+		}
+	}
+
+	SetValue(bit2num(bit[row][col]), row, col);
+	return 0;
+}
+
 bool SudokuMap::Done() const
 {
 	if (m_nBlank == 0 && !Contradict())

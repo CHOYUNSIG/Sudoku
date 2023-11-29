@@ -685,7 +685,7 @@ int CsudokuView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 			}
 			button_toolbar[0] = new EdgeButton(tl[0], br[0], [=]() { OnEraseClicked(); }, CString("지우기"), font_name, 0.3, 3, 0.1);
 			button_toolbar[1] = new EdgeButton(tl[1], br[1], [=]() { OnMemoClicked(); }, CString("메모"), font_name, 0.3, 3, 0.1);
-			button_toolbar[2] = new EdgeButton(tl[2], br[2], [=]() {}, CString("힌트"), font_name, 0.3, 3, 0.1);
+			button_toolbar[2] = new EdgeButton(tl[2], br[2], [=]() { OnHintClicked(); }, CString("힌트"), font_name, 0.3, 3, 0.1);
 			group_toolbar = new ButtonGroup(3, button_toolbar);
 		}
 
@@ -745,6 +745,7 @@ void CsudokuView::OnDifficultyClicked(DIFF diff) {
 	m_diff = diff;
 	m_bMemo = false;
 	m_bEditMode = false;
+	m_bHintUsed = false;
 	m_dAdditionalTime = 0.0;
 	m_clockRequested = clock();
 
@@ -824,6 +825,7 @@ void CsudokuView::OnSettingsClicked() {
 void CsudokuView::OnUserClicked() {
 	m_bMemo = false;
 	m_bEditMode = true;
+	m_bHintUsed = false;
 	m_map = new SudokuMap;
 	m_nSelRow = m_nSelCol = 4;
 	m_diff = USER;
@@ -980,6 +982,26 @@ void CsudokuView::OnSaveClicked()
 	}
 }
 
+void CsudokuView::OnHintClicked()
+{
+	if (m_ingame == ON && ((!m_bHintUsed && AfxMessageBox(_T("힌트 기능을 사용하면 기록을 세울 수 없습니다.\n힌트를 사용하시겠습니까?"), MB_OKCANCEL, MB_ICONASTERISK) == IDOK) || m_bHintUsed)) {
+		m_bHintUsed = true;
+		switch (m_map->Hint()) {
+		case 1:
+			AfxMessageBox(_T("현재 스도쿠 판에 오답이 있습니다."), MB_OK, MB_ICONSTOP);
+			break;
+		case 2:
+			AfxMessageBox(_T("해답 도출 도중 모순이 발견되었습니다."), MB_OK, MB_ICONSTOP);
+			break;
+		case 3:
+			AfxMessageBox(_T("유일한 정답을 발견할 수 없습니다."), MB_OK, MB_ICONSTOP);
+			break;
+		defalut:
+			break;
+		}
+	}
+}
+
 void CsudokuView::OnGiveUpClicked()
 {
 	group_numberkey->Disable();
@@ -1084,7 +1106,7 @@ void CsudokuView::OnTimer(UINT_PTR nIDEvent)
 					group_pause->Disable();
 					group_toolbar->Disable();
 
-					if (m_diff != USER) {
+					if (m_diff != USER && !m_bHintUsed) {
 						ranking[m_diff]->push_back(m_dFinishedTime);
 						std::sort(ranking[m_diff]->begin(), ranking[m_diff]->end());
 						while (ranking[m_diff]->size() > 5)

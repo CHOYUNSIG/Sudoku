@@ -82,9 +82,9 @@ public:
 	DIFF m_diff;
 	bool m_bEditMode;
 	bool m_bMemo;
+	bool m_bHintUsed;
 	int m_nSelRow;
 	int m_nSelCol;
-	
 	double m_dAdditionalTime;
 	clock_t m_clockRequested;
 	clock_t m_clockGenerated;
@@ -118,6 +118,7 @@ public:
 	void OnNumberKeyClicked(int num);
 	void OnEraseClicked();
 	void OnMemoClicked();
+	void OnHintClicked();
 	void OnPauseClicked();
 	void OnKeepGoingClicked();
 	void OnSaveClicked();
