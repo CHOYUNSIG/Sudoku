@@ -801,6 +801,9 @@ void CsudokuView::OnContinueClicked() {
 		line = strtok_s(NULL, "\n", &context);
 		m_dAdditionalTime = std::atof(line);
 		line = strtok_s(NULL, ":", &context);
+		line = strtok_s(NULL, "\n", &context);
+		m_bHintUsed = (bool)std::atoi(line);
+		line = strtok_s(NULL, ":", &context);
 		
 		m_bMemo = false;
 		m_bEditMode = false;
@@ -969,6 +972,9 @@ void CsudokuView::OnSaveClicked()
 		st += a;
 		if (m_bEditMode) a.Format(_T("time: %.2f\n"), 0.0);
 		else a.Format(_T("time: %.2f\n"), m_dPausedTime);
+		st += a;
+		if (m_bEditMode) a.Format(_T("hint: %d\n"), 0);
+		else a.Format(_T("hint: %d\n"), (int)m_bHintUsed);
 		st += a;
 
 		char buffer[2048] = { 0, };
