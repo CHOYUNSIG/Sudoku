@@ -342,24 +342,27 @@ int SudokuMap::Hint()
 		else
 			bit[i / 9][i % 9] = 0b111111111;
 	}
-	while (subset(bit) || intersection(bit))
-		continue;
-
+	
 	int row = 0, col = 0;
-	for (RandomIterator iter_pos(81); iter_pos.Increase(); ) {
-		int pos = iter_pos.Get();
-		int a = bitsum(bit[pos / 9][pos % 9]);
-		if (GetValue(pos / 9, pos % 9) == 0) {
-			if (a == 1) {
-				row = pos / 9;
-				col = pos % 9;
+	bool found = false;
+	do {
+		for (RandomIterator iter_pos(81); iter_pos.Increase(); ) {
+			int pos = iter_pos.Get();
+			int a = bitsum(bit[pos / 9][pos % 9]);
+			if (GetValue(pos / 9, pos % 9) == 0) {
+				if (a == 1 && !found) {
+					found = true;
+					row = pos / 9;
+					col = pos % 9;
+				}
+				else if (a == 0)
+					return 2; // 탐색 중 모순 발견 시
 			}
-			else if (a == 0)
-				return 2; // 모순 발견 시
-			else
-				return 3; // 유일한 해답을 찾지 못할 시
 		}
-	}
+	} while (subset(bit) || intersection(bit));
+
+	if (!found)
+		return 3; // 유일한 해답을 찾지 못함
 
 	SetValue(bit2num(bit[row][col]), row, col);
 	return 0;
