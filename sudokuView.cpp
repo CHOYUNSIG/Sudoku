@@ -996,7 +996,7 @@ void CsudokuView::OnHintClicked()
 		case 3:
 			AfxMessageBox(_T("유일한 정답을 발견할 수 없습니다."), MB_OK, MB_ICONSTOP);
 			break;
-		defalut:
+		default:
 			break;
 		}
 	}
@@ -1178,7 +1178,9 @@ void CsudokuView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		if (m_ingame == ON) {
 			if ('1' <= nChar && nChar <= '9')
 				OnNumberKeyClicked(nChar - '0');
-			else if (nChar == VK_DELETE || nChar == VK_BACK || nChar == '0')
+			else if (VK_NUMPAD1 <= nChar && nChar <= VK_NUMPAD9)
+				OnNumberKeyClicked(nChar - VK_NUMPAD0);
+			else if (nChar == VK_DELETE || nChar == VK_BACK || nChar == '0' || nChar == VK_NUMPAD0)
 				OnEraseClicked();
 		}
 		// 선택된 셀 이동
@@ -1194,7 +1196,7 @@ void CsudokuView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		}
 		// 메모 기능 켜기
 		if (m_ingame == ON) {
-			if (nChar == VK_SHIFT) {
+			if (nChar == VK_CONTROL) {
 				m_bMemo = true;
 				((TextButton *)(group_toolbar->group[1]))->ChangeTextColor(RGB(255, 0, 0));
 			}
@@ -1218,7 +1220,7 @@ void CsudokuView::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 	if (m_mode == GAME) {
 		// 메모 기능 끄기
 		if (m_ingame == ON) {
-			if (nChar == VK_SHIFT) {
+			if (nChar == VK_CONTROL) {
 				((TextButton *)(group_toolbar->group[1]))->ChangeTextColor(RGB(0, 0, 0));
 				m_bMemo = false;
 			}
