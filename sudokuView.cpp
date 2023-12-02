@@ -105,7 +105,8 @@ void CsudokuView::OnDraw(CDC *pDC)
 	CBitmap bitmap;
 	bitmap.CreateCompatibleBitmap(pDC, width, height);
 	memdc.SelectObject(bitmap);
-	memdc.FillSolidRect(ClientRect, RGB(255, 255, 255));
+	for (int i = 0; i < height; i++)
+		memdc.FillSolidRect(CRect(0, i, width, i + 1), RGB(255 - i * 15 / height, 245, 240 + i * 15 / height));
 
 	// TODO: 여기에 원시 데이터에 대한 그리기 코드를 추가합니다.
 	CFont font, *oldfont;
