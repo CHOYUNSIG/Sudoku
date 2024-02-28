@@ -217,6 +217,7 @@
     <None Include="settings.dat" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="..\..\Downloads\sudoku.ico" />
     <Image Include="res\sudoku.ico" />
     <Image Include="res\sudokuDoc.ico" />
     <Image Include="res\Toolbar.bmp" />

@@ -11,6 +11,7 @@
 #define IDS_STRING_EASY_KO              301
 #define IDS_STRING_MEDIUM               310
 #define IDS_STRING_MEDIUM_KO            311
+#define IDI_ICON1                       315
 #define IDS_STRING_HARD                 320
 #define IDS_STRING_HARD_KO              321
 #define IDS_STRING_USER                 330
@@ -56,7 +57,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        315
+#define _APS_NEXT_RESOURCE_VALUE        316
 #define _APS_NEXT_COMMAND_VALUE         32774
 #define _APS_NEXT_CONTROL_VALUE         1000
 #define _APS_NEXT_SYMED_VALUE           310
