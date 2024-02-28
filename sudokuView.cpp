@@ -15,8 +15,10 @@
 #include "sudokuView.h"
 #include "SudokuMap.h"
 #include "CustomButton.h"
+#include "resource.h"
 
 #include <algorithm>
+#include <tuple>
 #include <string>
 #include <functional>
 #include <direct.h>
@@ -166,7 +168,11 @@ void CsudokuView::OnDraw(CDC *pDC)
 			memdc.SelectObject(oldfont);
 			font.DeleteObject();
 			// 랭킹판 - 난이도 별 기록
-			CString diff[3] = { CString("쉬움"), CString("보통"), CString("어려움") };
+			CString diff[3];
+			diff[0].LoadString(IDS_STRING_EASY + m_nLanguage);
+			diff[1].LoadString(IDS_STRING_MEDIUM + m_nLanguage);
+			diff[2].LoadString(IDS_STRING_HARD + m_nLanguage);
+			
 			for (int d = 0; d < 3; d++) {
 				if (ranking[d]->empty())
 					continue;
@@ -200,7 +206,7 @@ void CsudokuView::OnDraw(CDC *pDC)
 		// 로딩
 		font.CreatePointFont(height * 72 / dpi, font_name);
 		oldfont = memdc.SelectObject(&font);
-		string = CString("로딩중");
+		string.LoadString(IDS_STRING_LOADING + m_nLanguage);
 		for (int i = 0; i < (clock() - m_clockRequested) * 2 / CLOCKS_PER_SEC % 4; i++)
 			string += CString(".");
 		memdc.DrawText(string, CRect(0, 0, width, height), DT_SINGLELINE | DT_CENTER | DT_VCENTER);
@@ -212,7 +218,8 @@ void CsudokuView::OnDraw(CDC *pDC)
 		if (m_ingame == READY) {
 			font.CreatePointFont(height * 72 / dpi, font_name);
 			oldfont = memdc.SelectObject(&font);
-			memdc.DrawText(_T("준비!"), CRect(width / 20, height / 20, width / 20 + height * 9 / 10, height / 2), DT_SINGLELINE | DT_CENTER | DT_BOTTOM);
+			string.LoadString(IDS_STRING_READY + m_nLanguage);
+			memdc.DrawText(string + _T("!"), CRect(width / 20, height / 20, width / 20 + height * 9 / 10, height / 2), DT_SINGLELINE | DT_CENTER | DT_BOTTOM);
 			memdc.SelectObject(oldfont);
 			font.DeleteObject();
 			font.CreatePointFont(height * 72 / dpi, _T("consolas"));
@@ -326,20 +333,12 @@ void CsudokuView::OnDraw(CDC *pDC)
 			// 게임 결과 - 난이도
 			font.CreatePointFont(height * 36 / dpi, font_name);
 			oldfont = memdc.SelectObject(&font);
-			switch (m_diff) {
-			case EASY:
-				string = CString("쉬움");
-				break;
-			case MEDIUM:
-				string = CString("보통");
-				break;
-			case HARD:
-				string = CString("어려움");
-				break;
-			case USER:
-				string = CString("사용자 정의");
-				break;
-			}
+			CString diff[4];
+			diff[0].LoadString(IDS_STRING_EASY + m_nLanguage);
+			diff[1].LoadString(IDS_STRING_MEDIUM + m_nLanguage);
+			diff[2].LoadString(IDS_STRING_HARD + m_nLanguage);
+			diff[3].LoadString(IDS_STRING_USER + m_nLanguage);
+			string = diff[m_diff];
 			memdc.DrawText(string, CRect(
 				width * 21 / 40 + height * 9 / 20 - width,
 				0,
@@ -893,6 +892,42 @@ void CsudokuView::OnScreenSizeClicked(int inc)
 void CsudokuView::OnLanguageClicked(int inc)
 {
 	m_nLanguage = (m_nLanguage + LANG_COUNT + inc) % LANG_COUNT;
+	CString lang[2] = { CString("English"), CString("한국어") };
+	((TextButton *)(group_settings->group[6]))->ChangeText(lang[m_nLanguage]);
+	
+	auto language_list = {
+		std::make_tuple(group_init->group[0], IDS_STRING_NEWGAME),
+		std::make_tuple(group_init->group[1], IDS_STRING_CONTINUE),
+		std::make_tuple(group_init->group[2], IDS_STRING_SETTINGS),
+		std::make_tuple(group_init->group[3], IDS_STRING_EXIT),
+
+		std::make_tuple(group_newgame->group[0], IDS_STRING_EASY),
+		std::make_tuple(group_newgame->group[1], IDS_STRING_MEDIUM),
+		std::make_tuple(group_newgame->group[2], IDS_STRING_HARD),
+		std::make_tuple(group_newgame->group[3], IDS_STRING_USER),
+		std::make_tuple(group_newgame->group[4], IDS_STRING_BACK),
+
+		std::make_tuple(group_settings->group[0], IDS_STRING_SOUNDVOL),
+		std::make_tuple(group_settings->group[1], IDS_STRING_SCREENSIZE),
+		std::make_tuple(group_settings->group[2], IDS_STRING_LANGUAGE),
+		std::make_tuple(group_settings->group[3], IDS_STRING_BACK),
+
+		std::make_tuple(group_toolbar->group[0], IDS_STRING_ERASE),
+		std::make_tuple(group_toolbar->group[1], IDS_STRING_MEMO),
+		std::make_tuple(group_toolbar->group[2], IDS_STRING_HINT),
+
+		std::make_tuple(group_onpause->group[0], IDS_STRING_KEEPGOING),
+		std::make_tuple(group_onpause->group[1], IDS_STRING_SAVE),
+		std::make_tuple(group_onpause->group[2], IDS_STRING_QUIT),
+
+		std::make_tuple(group_done->group[0], IDS_STRING_DONE)
+	};
+	
+	for (auto &b : language_list) {
+		CString str;
+		str.LoadString(std::get<1>(b) + m_nLanguage);
+		((TextButton *)std::get<0>(b))->ChangeText(str);
+	}
 }
 
 void CsudokuView::OnBackSettingsClicked() {
