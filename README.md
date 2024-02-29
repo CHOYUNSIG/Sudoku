@@ -3,6 +3,12 @@
 
 편안한 주말 오후의 느낌으로 스도쿠를 즐기세요!
 
+## Download
+
+Pre-release version is out now!
+
+Click <a href="https://github.com/CHOYUNSIG/sudoku/releases/tag/v0.0.1">here</a> to go to page.
+
 ## Features
 
 1. 편리하고 미적인 인터페이스
@@ -17,9 +23,3 @@
   <img width="40%" src="https://github.com/CHOYUNSIG/sudoku/assets/61886049/1a02bf39-d818-462c-b132-3bad617fae9e"/>
   <img width="40%" src="https://github.com/CHOYUNSIG/sudoku/assets/61886049/c7c4ba50-2c4f-4f92-8781-ad8a3b92274b"/>
 </div>
-
-## Download
-
-Pre-release version is out now!
-
-Click <a href="https://github.com/CHOYUNSIG/sudoku/releases/tag/v0.0.1">here</a> to go to page.
