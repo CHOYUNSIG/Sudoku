@@ -17,6 +17,8 @@
 4. 기록 세우기
 5. 힌트
 
+언어 지원 : 한국어, English
+
 ## Snapshot
 
 <div align=center>
