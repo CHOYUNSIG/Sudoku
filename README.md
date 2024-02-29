@@ -22,6 +22,6 @@
 ## Snapshot
 
 <div align=center>
-  <img width="40%" src="https://github.com/CHOYUNSIG/sudoku/assets/61886049/1a02bf39-d818-462c-b132-3bad617fae9e"/>
-  <img width="40%" src="https://github.com/CHOYUNSIG/sudoku/assets/61886049/c7c4ba50-2c4f-4f92-8781-ad8a3b92274b"/>
+  <img width="45%" src="https://github.com/CHOYUNSIG/sudoku/assets/61886049/1a02bf39-d818-462c-b132-3bad617fae9e"/>
+  <img width="45%" src="https://github.com/CHOYUNSIG/sudoku/assets/61886049/c7c4ba50-2c4f-4f92-8781-ad8a3b92274b"/>
 </div>
