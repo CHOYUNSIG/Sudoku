@@ -5,9 +5,9 @@
 
 ## Download
 
-Pre-release version is out now!
+프리 릴리즈 버전(v0.0.1)이 출시되었습니다!
 
-Click <a href="https://github.com/CHOYUNSIG/sudoku/releases/tag/v0.0.1">here</a> to go to page.
+<a href="https://github.com/CHOYUNSIG/sudoku/releases/tag/v0.0.1">여기</a>를 클릭하여 다운로드 페이지로 이동하세요.
 
 ## Features
 
